@@ -1,0 +1,1358 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>StatementConvert — Bank Statement to CSV, Excel or JSON in seconds</title>
+<meta name="description" content="Upload any bank statement PDF, CSV or image. Get clean, structured transaction data in seconds — export to Excel, CSV, JSON or OFX. No account needed. Free to try.">
+<link rel="canonical" href="https://statementconvert.netlify.app/">
+<meta name="robots" content="index, follow">
+<meta property="og:type" content="website">
+<meta property="og:title" content="StatementConvert — Convert any bank statement to Excel or CSV">
+<meta property="og:description" content="Upload a PDF, CSV or photo of your bank statement. Get clean, editable transaction data in seconds. No manual entry. Free to try.">
+<link rel="alternate" hreflang="en" href="https://statementconvert.netlify.app/">
+<link rel="alternate" hreflang="fr" href="https://statementconvert.netlify.app/">
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"SoftwareApplication","name":"StatementConvert","applicationCategory":"FinanceApplication","operatingSystem":"Web","url":"https://statementconvert.netlify.app/","description":"Convert any PDF, CSV or image bank statement to Excel, CSV, JSON or OFX in seconds. No manual entry. Free to try.","offers":[{"@type":"Offer","price":"0","priceCurrency":"EUR","name":"Free"},{"@type":"Offer","price":"19","priceCurrency":"EUR","name":"Starter — launch price, subject to change"},{"@type":"Offer","price":"49","priceCurrency":"EUR","name":"Pro — launch price, subject to change"}]}
+</script>
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"How do I convert a PDF bank statement to Excel?","acceptedAnswer":{"@type":"Answer","text":"Upload your PDF on StatementConvert. Transactions are extracted automatically. Review the table, edit if needed, then click Download Excel."}},{"@type":"Question","name":"How accurate is the extraction?","acceptedAnswer":{"@type":"Answer","text":"Accuracy is high for clean digital PDFs. Scanned documents may have occasional errors — every cell is editable before download so you can correct anything before exporting."}},{"@type":"Question","name":"Is my financial data safe?","acceptedAnswer":{"@type":"Answer","text":"Files are encrypted in transit and permanently deleted within 1 hour of upload. We never store or sell your data. GDPR compliant."}},{"@type":"Question","name":"Which banks are supported?","acceptedAnswer":{"@type":"Answer","text":"Works with major US, UK and European banks including Chase, Barclays, HSBC, Revolut, Wise, BNP Paribas and Société Générale. Contact us if your bank isn't recognized."}},{"@type":"Question","name":"How long does conversion take?","acceptedAnswer":{"@type":"Answer","text":"Most digital PDFs and CSVs are processed in under 10 seconds. Scanned documents may take slightly longer."}}]}
+</script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,400;1,9..144,300;1,9..144,400&family=DM+Mono:wght@300;400&family=Geist:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --ink:#0f0f0f;--mid:#5a5a5a;--light:#999;
+  --border:#e4e4e4;--border2:#f2f2f2;--bg:#f8f8f7;--white:#fff;
+  --blue:#1a56db;--blue-l:#eff6ff;--green:#059669;--green-l:#ecfdf5;--red:#dc2626;
+  --serif:'Fraunces',Georgia,serif;--mono:'DM Mono',monospace;--sans:'Geist',system-ui,sans-serif;
+}
+html{scroll-behavior:smooth}
+body{background:var(--white);color:var(--ink);font-family:var(--sans);font-size:16px;line-height:1.6;-webkit-font-smoothing:antialiased;overflow-x:hidden}
+@keyframes fadeUp{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:none}}
+@keyframes fadeIn{from{opacity:0}to{opacity:1}}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.3}}
+@keyframes spin{to{transform:rotate(360deg)}}
+.reveal{opacity:0;transform:translateY(28px);transition:opacity .65s cubic-bezier(.16,1,.3,1),transform .65s cubic-bezier(.16,1,.3,1)}
+.reveal.in{opacity:1;transform:none}
+.d1{transition-delay:.08s}.d2{transition-delay:.16s}.d3{transition-delay:.24s}
+
+/* ── NAV ── */
+nav{position:fixed;top:0;left:0;right:0;z-index:100;padding:0 40px;background:rgba(255,255,255,.94);backdrop-filter:blur(18px);border-bottom:1px solid var(--border2)}
+.nav-in{max-width:1060px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;height:58px}
+.logo{display:flex;align-items:center;gap:9px;text-decoration:none;color:var(--ink)}
+.logo-img{width:26px;height:26px;flex-shrink:0}
+.logo-name{font-weight:500;font-size:14px;letter-spacing:-.01em}
+.nav-links{display:flex;gap:2px}
+.nl{font-size:13px;color:var(--mid);padding:5px 11px;border-radius:6px;cursor:pointer;border:none;background:none;font-family:var(--sans);transition:color .15s}
+.nl:hover{color:var(--ink)}
+.nav-r{display:flex;align-items:center;gap:7px}
+.lbtn{background:none;border:1px solid var(--border);border-radius:6px;padding:4px 9px;font-size:12px;font-family:var(--sans);color:var(--mid);cursor:pointer;transition:all .15s}
+.lbtn.on,.lbtn:hover{background:var(--ink);color:#fff;border-color:var(--ink)}
+.ncta{background:var(--ink);color:#fff;padding:8px 16px;border-radius:8px;font-size:13px;font-weight:500;border:none;cursor:pointer;font-family:var(--sans);transition:all .2s}
+.ncta:hover{background:#2a2a2a;transform:translateY(-1px)}
+
+/* ── HERO ── */
+.hero{padding:136px 40px 64px;max-width:1060px;margin:0 auto}
+.hero-tag{display:inline-flex;align-items:center;gap:7px;font-size:11px;color:var(--mid);letter-spacing:.07em;text-transform:uppercase;font-family:var(--mono);margin-bottom:20px;animation:fadeIn .8s ease both}
+.hero-dot{width:6px;height:6px;background:var(--green);border-radius:50%;animation:pulse 2s infinite}
+h1{font-family:var(--serif);font-size:clamp(2.4rem,5vw,4.6rem);font-weight:300;line-height:1.1;letter-spacing:-.03em;margin-bottom:20px;animation:fadeUp .85s cubic-bezier(.16,1,.3,1) .1s both}
+h1 em{font-style:italic;color:var(--mid)}
+h2{font-family:var(--serif);font-size:clamp(1.8rem,3.5vw,2.8rem);font-weight:300;line-height:1.18;letter-spacing:-.02em;margin-bottom:14px}
+h2 em{font-style:italic;color:var(--mid)}
+.hero-sub{font-size:1rem;color:var(--mid);max-width:460px;line-height:1.72;margin-bottom:28px;font-weight:300;animation:fadeUp .85s cubic-bezier(.16,1,.3,1) .18s both}
+.hero-acts{display:flex;align-items:center;gap:10px;flex-wrap:wrap;animation:fadeUp .85s cubic-bezier(.16,1,.3,1) .26s both}
+.btn-p{background:var(--ink);color:#fff;padding:13px 26px;border-radius:9px;font-size:14px;font-weight:500;border:none;cursor:pointer;font-family:var(--sans);transition:all .2s;display:inline-flex;align-items:center;gap:7px}
+.btn-p:hover{background:#2a2a2a;transform:translateY(-1px)}
+.btn-g{background:none;color:var(--mid);padding:12px 18px;border-radius:9px;font-size:13px;border:1px solid var(--border);cursor:pointer;font-family:var(--sans);transition:all .15s}
+.btn-g:hover{color:var(--ink);border-color:var(--ink)}
+.hero-trust{display:flex;align-items:center;gap:18px;flex-wrap:wrap;margin-top:20px;animation:fadeUp .85s cubic-bezier(.16,1,.3,1) .34s both}
+.htb{font-family:var(--mono);font-size:11px;color:var(--light)}
+.htb::before{content:"✓ ";color:var(--green)}
+
+/* ── REASSURANCE STRIP ── */
+.reassurance{border-top:1px solid var(--border2);border-bottom:1px solid var(--border2);padding:14px 40px;background:var(--bg)}
+.reassurance-in{max-width:1060px;margin:0 auto;display:flex;align-items:center;justify-content:center;gap:32px;flex-wrap:wrap}
+.rbadge{display:flex;align-items:center;gap:7px;font-size:12px;color:var(--mid);font-family:var(--mono)}
+.rbadge svg{width:14px;height:14px;stroke:var(--green);fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;flex-shrink:0}
+.rsep{width:1px;height:14px;background:var(--border)}
+
+/* ── DEMO ── */
+.demo-wrap{max-width:1060px;margin:0 auto;padding:56px 40px 80px}
+.demo-window{border:1px solid var(--border);border-radius:14px;overflow:hidden;box-shadow:0 2px 32px rgba(0,0,0,.05)}
+.demo-bar{background:var(--bg);padding:12px 18px;display:flex;align-items:center;gap:7px;border-bottom:1px solid var(--border)}
+.db-dot{width:9px;height:9px;border-radius:50%}
+.demo-url{font-family:var(--mono);font-size:11px;color:var(--light);margin-left:10px;background:var(--white);border:1px solid var(--border);border-radius:5px;padding:2px 10px}
+.demo-body{display:grid;grid-template-columns:240px 1fr;min-height:280px}
+.demo-l{padding:28px;border-right:1px solid var(--border);display:flex;flex-direction:column;justify-content:center;align-items:center;text-align:center;gap:14px}
+.drop-area{border:1.5px dashed var(--border);border-radius:10px;padding:24px 16px;width:100%;display:flex;flex-direction:column;align-items:center;gap:7px;background:var(--bg);transition:all .2s;cursor:pointer}
+.drop-area:hover{border-color:var(--ink);background:var(--white)}
+.drop-icon{width:36px;height:36px;background:var(--white);border:1px solid var(--border);border-radius:8px;display:flex;align-items:center;justify-content:center}
+.drop-icon svg{width:18px;height:18px;stroke:var(--mid);fill:none;stroke-width:1.5;stroke-linecap:round;stroke-linejoin:round}
+.drop-title{font-size:12px;font-weight:500}
+.drop-sub{font-size:11px;color:var(--light)}
+.drop-fmts{display:flex;gap:4px;flex-wrap:wrap;justify-content:center}
+.fmt{font-family:var(--mono);font-size:10px;color:var(--mid);background:var(--border2);border-radius:3px;padding:1px 6px}
+.processing{display:none;flex-direction:column;align-items:center;gap:10px}
+.proc-ring{width:28px;height:28px;border:2px solid var(--border);border-top-color:var(--ink);border-radius:50%;animation:spin .8s linear infinite}
+.proc-label{font-family:var(--mono);font-size:11px;color:var(--mid)}
+.demo-r{padding:18px;overflow:auto}
+.demo-r table{width:100%;border-collapse:collapse;font-size:12px}
+.demo-r th{padding:7px 10px;text-align:left;color:var(--light);font-weight:400;font-family:var(--mono);font-size:10px;border-bottom:1px solid var(--border);text-transform:uppercase;letter-spacing:.04em}
+.demo-r td{padding:7px 10px;border-bottom:1px solid var(--border2)}
+.demo-r tr:last-child td{border:none}
+.demo-r tr:hover td{background:var(--bg)}
+.t-pos{color:var(--green);font-family:var(--mono)}.t-neg{color:var(--red);font-family:var(--mono)}
+.cat-tag{font-family:var(--mono);font-size:10px;color:var(--mid);background:var(--border2);border-radius:3px;padding:1px 5px}
+.demo-footer{background:var(--bg);border-top:1px solid var(--border);padding:12px 18px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px}
+.exp-row{display:flex;gap:5px}
+.exp-b{font-family:var(--mono);font-size:11px;padding:5px 10px;border-radius:5px;cursor:pointer;border:none;transition:all .15s}
+.exp-csv{background:#d1fae5;color:#065f46}.exp-xlsx{background:#dbeafe;color:#1e3a8a}.exp-json{background:#fef3c7;color:#78350f}
+.demo-status{font-family:var(--mono);font-size:11px;color:var(--green);display:flex;align-items:center;gap:5px}
+.demo-status::before{content:"";width:5px;height:5px;background:var(--green);border-radius:50%;display:inline-block}
+
+/* ── SECTIONS ── */
+.sec{max-width:1060px;margin:0 auto;padding:88px 40px}
+.sec-bg{padding:88px 40px}
+.sec-bg-in{max-width:1060px;margin:0 auto}
+.sec-label{font-family:var(--mono);font-size:10px;color:var(--light);letter-spacing:.1em;text-transform:uppercase;margin-bottom:14px}
+.sec-sub{font-size:14px;color:var(--mid);font-weight:300;max-width:420px;line-height:1.72;margin-top:8px}
+
+/* ── HOW IT WORKS ── */
+.steps{display:grid;grid-template-columns:repeat(3,1fr);gap:2px;margin-top:48px}
+.step{background:var(--white);padding:28px;border:1px solid var(--border)}
+.step:first-child{border-radius:12px 0 0 12px}
+.step:last-child{border-radius:0 12px 12px 0}
+.step-n{font-family:var(--mono);font-size:10px;color:var(--light);margin-bottom:16px}
+.step-icon{width:32px;height:32px;border:1px solid var(--border);border-radius:7px;display:flex;align-items:center;justify-content:center;margin-bottom:14px}
+.step-icon svg{width:16px;height:16px;stroke:var(--ink);fill:none;stroke-width:1.5;stroke-linecap:round;stroke-linejoin:round}
+.step h3{font-size:14px;font-weight:500;margin-bottom:6px}
+.step p{font-size:13px;color:var(--mid);line-height:1.65;font-weight:300}
+
+/* ── FEATURES ── */
+.feat-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:1px;margin-top:48px;border:1px solid var(--border);border-radius:12px;overflow:hidden}
+.feat{background:var(--white);padding:28px;border-right:1px solid var(--border);border-bottom:1px solid var(--border)}
+.feat:nth-child(2n){border-right:none}
+.feat:nth-last-child(-n+2){border-bottom:none}
+.feat-icon{width:30px;height:30px;border:1px solid var(--border);border-radius:7px;display:flex;align-items:center;justify-content:center;margin-bottom:12px}
+.feat-icon svg{width:14px;height:14px;stroke:var(--ink);fill:none;stroke-width:1.5;stroke-linecap:round;stroke-linejoin:round}
+.feat h3{font-size:14px;font-weight:500;margin-bottom:5px}
+.feat p{font-size:13px;color:var(--mid);line-height:1.65;font-weight:300}
+
+/* ── SECURITY ── */
+.sec-dark{background:var(--ink);padding:88px 40px}
+.sec-dark-in{max-width:1060px;margin:0 auto}
+.sec-dark .sec-label{color:rgba(255,255,255,.28)}
+.sec-dark h2{color:#fff}
+.sec-dark h2 em{color:rgba(255,255,255,.38)}
+.trust-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:1px;margin-top:48px;border:1px solid rgba(255,255,255,.07);border-radius:12px;overflow:hidden}
+.tc{background:rgba(255,255,255,.04);padding:24px;border-right:1px solid rgba(255,255,255,.07)}
+.tc:last-child{border-right:none}
+.tc-n{font-family:var(--mono);font-size:10px;color:rgba(255,255,255,.28);margin-bottom:10px}
+.tc h4{font-size:13px;font-weight:400;color:#fff;margin-bottom:5px}
+.tc p{font-size:12px;color:rgba(255,255,255,.42);line-height:1.65;font-weight:300}
+
+/* ── USE CASES ── */
+.use-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-top:44px}
+.use-card{border:1px solid var(--border);border-radius:11px;padding:22px;background:var(--white);transition:border-color .2s}
+.use-card:hover{border-color:var(--ink)}
+.use-emoji{font-size:22px;margin-bottom:10px;display:block}
+.use-card h3{font-size:13px;font-weight:500;margin-bottom:5px}
+.use-card p{font-size:12px;color:var(--mid);line-height:1.65;font-weight:300}
+
+/* ── BANKS ── */
+.banks-wrap{padding:88px 40px;border-bottom:1px solid var(--border)}
+.banks-in{max-width:1060px;margin:0 auto}
+.banks{display:flex;flex-wrap:wrap;gap:7px;margin-top:28px}
+.bp{font-family:var(--mono);font-size:11px;color:var(--mid);background:var(--bg);border:1px solid var(--border);border-radius:100px;padding:4px 12px;transition:all .15s;cursor:default}
+.bp:hover{background:var(--ink);color:#fff;border-color:var(--ink)}
+
+/* ── PRICING ── */
+.price-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-top:48px}
+.plan{border:1px solid var(--border);border-radius:12px;padding:24px;position:relative;background:var(--white);transition:border-color .2s,box-shadow .2s;display:flex;flex-direction:column}
+.plan:hover{border-color:#aaa}
+.plan.feat{border-color:var(--ink);box-shadow:0 4px 24px rgba(0,0,0,.08)}
+.plan-badge{position:absolute;top:-10px;left:18px;background:var(--ink);color:#fff;font-family:var(--mono);font-size:9px;padding:2px 9px;border-radius:100px;letter-spacing:.05em}
+.plan-tag{font-family:var(--mono);font-size:9px;color:var(--light);margin-bottom:10px;letter-spacing:.07em;text-transform:uppercase}
+.plan-price{font-family:var(--serif);font-size:2.2rem;font-weight:300;color:var(--ink);letter-spacing:-.02em;line-height:1;margin-bottom:3px}
+.plan-price sup{font-family:var(--sans);font-size:13px;vertical-align:super}
+.plan-price sub{font-family:var(--sans);font-size:12px;color:var(--mid);font-weight:300}
+.plan-desc{font-size:12px;color:var(--mid);margin-bottom:16px;font-weight:300;line-height:1.5}
+.plan-div{border:none;border-top:1px solid var(--border);margin-bottom:14px}
+.plan-feats{list-style:none;display:flex;flex-direction:column;gap:6px;margin-bottom:18px;flex:1}
+.plan-feats li{font-size:12px;color:var(--mid);display:flex;gap:6px;font-weight:300;line-height:1.5}
+.plan-feats li::before{content:"—";color:var(--light);flex-shrink:0}
+.pbtn{width:100%;padding:10px;border-radius:7px;font-size:13px;font-weight:500;cursor:pointer;border:1px solid var(--border);background:var(--white);color:var(--ink);font-family:var(--sans);transition:all .15s;margin-top:auto}
+.pbtn:hover{border-color:var(--ink)}
+.pbtn.pri{background:var(--ink);color:#fff;border-color:var(--ink)}
+.pbtn.pri:hover{background:#2a2a2a}
+.price-note{text-align:center;margin-top:16px;font-family:var(--mono);font-size:11px;color:var(--light)}
+.enterprise-row{border:1px solid var(--border);border-radius:12px;padding:22px 28px;margin-top:12px;display:flex;align-items:center;justify-content:space-between;gap:20px;flex-wrap:wrap}
+.enterprise-left h3{font-size:14px;font-weight:500;margin-bottom:4px}
+.enterprise-left p{font-size:13px;color:var(--mid);font-weight:300}
+.pbtn-outline{padding:10px 22px;border-radius:7px;font-size:13px;font-weight:500;cursor:pointer;border:1px solid var(--border);background:var(--white);color:var(--ink);font-family:var(--sans);transition:all .15s;white-space:nowrap}
+.pbtn-outline:hover{border-color:var(--ink)}
+
+/* ── FAQ ── */
+.faq-wrap{background:var(--bg);padding:88px 40px}
+.faq-in{max-width:660px;margin:0 auto}
+.flist{margin-top:36px;display:flex;flex-direction:column}
+.fi{border-top:1px solid var(--border)}
+.fi:last-child{border-bottom:1px solid var(--border)}
+.fq{padding:18px 0;cursor:pointer;display:flex;justify-content:space-between;align-items:center;font-size:14px;color:var(--ink);user-select:none;background:none;border:none;width:100%;text-align:left;font-family:var(--sans);gap:12px}
+.fq:hover{color:var(--mid)}
+.fa-icon{color:var(--light);font-size:18px;transition:transform .2s;flex-shrink:0}
+.fa{font-size:13px;color:var(--mid);line-height:1.75;max-height:0;overflow:hidden;transition:all .28s;font-weight:300}
+.fi.open .fa{max-height:220px;padding-bottom:18px}
+.fi.open .fa-icon{transform:rotate(45deg)}
+
+/* ── CTA ── */
+.cta-sec{max-width:1060px;margin:0 auto;padding:88px 40px}
+.cta-box{border:1px solid var(--border);border-radius:14px;padding:64px;text-align:center;background:var(--bg)}
+.cta-box h2{margin-bottom:10px}
+.cta-box p{font-size:14px;color:var(--mid);margin-bottom:28px;font-weight:300;max-width:420px;margin-left:auto;margin-right:auto}
+.cta-btns{display:flex;justify-content:center;gap:10px;flex-wrap:wrap;margin-bottom:16px}
+.cta-trust{display:flex;align-items:center;justify-content:center;gap:16px;flex-wrap:wrap}
+.cta-trust span{font-family:var(--mono);font-size:11px;color:var(--light)}
+.cta-trust span::before{content:"✓ ";color:var(--green)}
+
+/* ── FOOTER ── */
+footer{border-top:1px solid var(--border);padding:36px 40px}
+.ft-in{max-width:1060px;margin:0 auto;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:16px}
+.ft-l{display:flex;flex-direction:column;gap:10px}
+.ft-trust{display:flex;gap:16px;flex-wrap:wrap}
+.ftr{font-family:var(--mono);font-size:11px;color:var(--light)}
+.ftr::before{content:"✓ ";color:var(--green)}
+.ft-r{text-align:right}
+.ft-links{display:flex;gap:14px;margin-bottom:6px;justify-content:flex-end}
+.ft-links a{color:var(--light);text-decoration:none;font-size:11px;font-family:var(--mono)}
+.ft-links a:hover{color:var(--ink)}
+.ft-copy{font-family:var(--mono);font-size:11px;color:var(--light)}
+
+/* ── UPLOAD PAGE ── */
+.upg{max-width:580px;margin:0 auto;padding:96px 40px 80px}
+.bk{display:inline-flex;align-items:center;gap:5px;color:var(--light);font-size:11px;cursor:pointer;border:none;background:none;font-family:var(--mono);margin-bottom:36px;transition:color .15s}
+.bk:hover{color:var(--ink)}
+.upg h1{font-family:var(--serif);font-size:2.2rem;font-weight:300;margin-bottom:6px;letter-spacing:-.02em;animation:none}
+.upg .sub{font-size:13px;color:var(--mid);margin-bottom:32px;font-weight:300;line-height:1.65}
+.dz{border:1px solid var(--border);border-radius:12px;padding:44px 28px;text-align:center;cursor:pointer;transition:all .2s;background:var(--bg);position:relative}
+.dz:hover,.dz.ov{border-color:var(--ink);background:var(--white)}
+.dz input{position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%}
+.dz-icon{width:44px;height:44px;border:1px solid var(--border);border-radius:10px;display:flex;align-items:center;justify-content:center;margin:0 auto 14px;background:var(--white)}
+.dz-icon svg{width:20px;height:20px;stroke:var(--mid);fill:none;stroke-width:1.5;stroke-linecap:round;stroke-linejoin:round}
+.dz-t{font-size:13px;font-weight:500;margin-bottom:3px}
+.dz-s{font-size:12px;color:var(--mid);font-weight:300}
+.dz-fmts{display:flex;gap:5px;justify-content:center;margin-top:12px;flex-wrap:wrap}
+.frow{display:none;align-items:center;gap:10px;background:var(--bg);border:1px solid var(--border);border-radius:9px;padding:10px 14px;margin-top:10px}
+.frow.show{display:flex}
+.fri{width:30px;height:30px;border:1px solid var(--border);border-radius:7px;display:flex;align-items:center;justify-content:center;flex-shrink:0;background:var(--white)}
+.fri svg{width:14px;height:14px;stroke:var(--mid);fill:none;stroke-width:1.5;stroke-linecap:round;stroke-linejoin:round}
+.fnm{font-size:13px;font-weight:500}.fsz{font-size:11px;color:var(--light);font-family:var(--mono)}
+.frm{margin-left:auto;background:none;border:none;color:var(--light);cursor:pointer;font-size:17px;line-height:1}
+.frm:hover{color:var(--ink)}
+.opts{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:14px}
+.og label{font-size:10px;color:var(--light);display:block;margin-bottom:5px;font-family:var(--mono);text-transform:uppercase;letter-spacing:.07em}
+.og select{width:100%;background:var(--white);border:1px solid var(--border);border-radius:7px;color:var(--ink);padding:9px 11px;font-size:13px;font-family:var(--sans);outline:none;transition:border-color .15s}
+.og select:focus{border-color:var(--ink)}
+.cvbtn{width:100%;margin-top:14px;background:var(--ink);color:#fff;padding:13px;border-radius:9px;font-size:14px;font-weight:500;border:none;cursor:pointer;font-family:var(--sans);transition:all .2s;display:flex;align-items:center;justify-content:center;gap:7px}
+.cvbtn:hover:not(:disabled){background:#2a2a2a;transform:translateY(-1px)}
+.cvbtn:disabled{opacity:.28;cursor:not-allowed}
+.sec-row{display:flex;align-items:center;justify-content:center;gap:14px;margin-top:9px;flex-wrap:wrap}
+.si{font-family:var(--mono);font-size:10px;color:var(--light)}
+.si::before{content:"✓ ";color:var(--green)}
+.pw{display:none;margin-top:18px}
+.pw.show{display:block}
+.phdr{display:flex;justify-content:space-between;font-family:var(--mono);font-size:11px;color:var(--light);margin-bottom:7px}
+.ptr{height:1px;background:var(--border);margin-bottom:14px;overflow:hidden}
+.pb{height:100%;background:var(--ink);width:0;transition:width .25s}
+.psteps{display:flex;flex-direction:column;gap:5px}
+.ps{display:flex;align-items:center;gap:6px;font-family:var(--mono);font-size:11px;color:var(--light)}
+.ps.act{color:var(--ink)}.ps.dn{color:var(--green)}
+.ps.dn .psd{display:none}
+.ps.dn::before{content:"✓";font-size:10px}
+.psd{width:4px;height:4px;border-radius:50%;background:currentColor;flex-shrink:0}
+.rsp{display:none;margin-top:28px}
+.rsp.show{display:block}
+.rchips{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:14px}
+.rch{font-family:var(--mono);font-size:10px;padding:3px 9px;border-radius:4px}
+.rg{background:var(--green-l);color:var(--green)}.rb{background:var(--blue-l);color:var(--blue)}
+.ep{background:var(--bg);border:1px solid var(--border);border-radius:9px;padding:14px;margin-bottom:10px}
+.ep-t{font-family:var(--mono);font-size:10px;color:var(--light);text-transform:uppercase;letter-spacing:.07em;margin-bottom:9px}
+.ebtns{display:flex;gap:5px;flex-wrap:wrap}
+.eb{display:flex;align-items:center;gap:4px;padding:6px 11px;border-radius:5px;font-family:var(--mono);font-size:11px;cursor:pointer;border:none;transition:all .15s}
+.eb:hover{opacity:.82}
+.eb svg{width:11px;height:11px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.eb-c{background:#d1fae5;color:#065f46}.eb-x{background:#dbeafe;color:#1e3a8a}.eb-j{background:#fef3c7;color:#78350f}.eb-o{background:#ede9fe;color:#4c1d95}
+.tw{background:var(--white);border:1px solid var(--border);border-radius:9px;overflow:auto}
+table.pr{width:100%;border-collapse:collapse;font-size:12px}
+table.pr th{padding:9px 12px;text-align:left;color:var(--light);font-weight:400;font-family:var(--mono);font-size:10px;background:var(--bg);border-bottom:1px solid var(--border);text-transform:uppercase;letter-spacing:.04em}
+table.pr td{padding:9px 12px;border-bottom:1px solid var(--border2)}
+table.pr tr:last-child td{border:none}
+table.pr tr:hover td{background:var(--bg)}
+.tpos{color:var(--green);font-family:var(--mono)}.tneg{color:var(--red);font-family:var(--mono)}
+.tcat{font-family:var(--mono);font-size:10px;color:var(--mid);background:var(--border2);border-radius:3px;padding:1px 5px}
+td[contenteditable]{cursor:text}
+td[contenteditable]:focus{outline:none;background:var(--blue-l)}
+.notif{position:fixed;top:68px;left:50%;transform:translateX(-50%);padding:10px 22px;border-radius:7px;font-size:13px;font-family:var(--mono);z-index:9999;white-space:nowrap;animation:fadeIn .25s ease}
+.notif-ok{background:var(--ink);color:#fff}
+.notif-err{background:var(--red);color:#fff}
+
+@media(max-width:900px){
+  .price-grid{grid-template-columns:repeat(2,1fr)}
+}
+@media(max-width:700px){
+  nav{padding:0 18px}.nav-links{display:none}
+  .hero,.demo-wrap,.sec,.cta-sec,.upg,.banks-wrap,.reassurance{padding-left:18px;padding-right:18px}
+  .sec-bg,.sec-dark,.faq-wrap{padding-left:18px;padding-right:18px}
+  h1{font-size:2.2rem}
+  .demo-body,.steps,.feat-grid,.trust-grid,.use-grid{grid-template-columns:1fr}
+  .price-grid{grid-template-columns:1fr}
+  .step:first-child{border-radius:11px 11px 0 0}
+  .step:last-child{border-radius:0 0 11px 11px}
+  .feat:nth-child(2n){border-right:1px solid var(--border)}
+  .tc{border-right:none;border-bottom:1px solid rgba(255,255,255,.07)}
+  .tc:last-child{border-bottom:none}
+  .trust-grid{border-radius:11px}
+  .cta-box{padding:36px 20px}
+  footer{padding:28px 18px}
+  .ft-in{flex-direction:column;align-items:flex-start}
+  .ft-r{text-align:left}.ft-links{justify-content:flex-start}
+  .opts{grid-template-columns:1fr}
+  .enterprise-row{flex-direction:column;align-items:flex-start}
+}
+</style>
+</head>
+<body>
+<!-- LOGO SVG réutilisable -->
+<svg style="display:none" xmlns="http://www.w3.org/2000/svg">
+<defs>
+<linearGradient id="lg1" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#E8EEF4"/><stop offset="100%" stop-color="#D0DAE6"/></linearGradient>
+<linearGradient id="lg2" x1="0" y1="0" x2=".4" y2="1"><stop offset="0%" stop-color="#C8DCF0" stop-opacity=".9"/><stop offset="60%" stop-color="#A8C4E0" stop-opacity=".7"/><stop offset="100%" stop-color="#8AAEC8" stop-opacity=".8"/></linearGradient>
+<linearGradient id="lg3" x1="0" y1="0" x2=".3" y2="1"><stop offset="0%" stop-color="#D8E6F2" stop-opacity=".95"/><stop offset="100%" stop-color="#B8CCE0" stop-opacity=".9"/></linearGradient>
+<linearGradient id="lg4" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#fff" stop-opacity=".95"/><stop offset="100%" stop-color="#EEF4FA" stop-opacity=".85"/></linearGradient>
+<clipPath id="lc"><path d="M170 115 Q170 95 190 95 L360 95 L420 155 L420 555 Q420 575 400 575 L190 575 Q170 575 170 555 Z"/></clipPath>
+<symbol id="SC" viewBox="0 0 680 680">
+<rect x="40" y="40" width="600" height="600" rx="120" fill="url(#lg1)"/>
+<path d="M170 115 Q170 95 190 95 L360 95 L420 155 L420 555 Q420 575 400 575 L190 575 Q170 575 170 555 Z" fill="url(#lg2)" stroke="#A0C0DA" stroke-width="1.5"/>
+<path d="M360 95 L360 155 L420 155 Z" fill="#7AA0C0" fill-opacity=".5"/>
+<g clip-path="url(#lc)" opacity=".35">
+<line x1="200" y1="260" x2="400" y2="260" stroke="#6090B0" stroke-width="2.5" stroke-linecap="round"/>
+<line x1="200" y1="310" x2="390" y2="310" stroke="#6090B0" stroke-width="2.5" stroke-linecap="round"/>
+<line x1="200" y1="360" x2="380" y2="360" stroke="#6090B0" stroke-width="2.5" stroke-linecap="round"/>
+</g>
+<g opacity=".82">
+<path d="M310 420 C350 420 360 480 395 480 C425 480 435 440 465 440" fill="none" stroke="#90B8D8" stroke-width="12" stroke-linecap="round" opacity=".7"/>
+<path d="M310 355 C352 355 362 415 400 415 C430 415 440 375 468 375" fill="none" stroke="#A8C8E8" stroke-width="12" stroke-linecap="round" opacity=".8"/>
+<path d="M310 290 C354 290 364 350 404 350 C434 350 445 310 472 310" fill="none" stroke="#C0D8F0" stroke-width="11" stroke-linecap="round" opacity=".88"/>
+</g>
+<rect x="290" y="210" width="250" height="280" rx="20" fill="url(#lg3)" stroke="#A8C0D8" stroke-width="1.5"/>
+<rect x="305" y="225" width="66" height="52" rx="6" fill="url(#lg4)" stroke="#C0D4E8" stroke-width=".8"/>
+<rect x="381" y="225" width="66" height="52" rx="6" fill="url(#lg4)" stroke="#C0D4E8" stroke-width=".8"/>
+<rect x="457" y="225" width="66" height="52" rx="6" fill="url(#lg4)" stroke="#C0D4E8" stroke-width=".8"/>
+<rect x="305" y="287" width="66" height="52" rx="6" fill="url(#lg4)" stroke="#C0D4E8" stroke-width=".8"/>
+<rect x="381" y="287" width="66" height="52" rx="6" fill="url(#lg4)" stroke="#C0D4E8" stroke-width=".8"/>
+<rect x="457" y="287" width="66" height="52" rx="6" fill="url(#lg4)" stroke="#C0D4E8" stroke-width=".8"/>
+<rect x="305" y="349" width="66" height="52" rx="6" fill="url(#lg4)" stroke="#C0D4E8" stroke-width=".8"/>
+<rect x="381" y="349" width="66" height="52" rx="6" fill="url(#lg4)" stroke="#C0D4E8" stroke-width=".8"/>
+<rect x="457" y="349" width="66" height="52" rx="6" fill="url(#lg4)" stroke="#C0D4E8" stroke-width=".8"/>
+<rect x="305" y="411" width="66" height="52" rx="6" fill="url(#lg4)" stroke="#C0D4E8" stroke-width=".8"/>
+<rect x="381" y="411" width="66" height="52" rx="6" fill="url(#lg4)" stroke="#C0D4E8" stroke-width=".8"/>
+<rect x="457" y="411" width="66" height="52" rx="6" fill="url(#lg4)" stroke="#C0D4E8" stroke-width=".8"/>
+</symbol>
+</defs>
+</svg>
+
+<nav>
+  <div class="nav-in">
+    <a class="logo" href="#" onclick="pg('land');return false">
+      <svg class="logo-img" viewBox="0 0 680 680"><use href="#SC"/></svg>
+      <span class="logo-name">StatementConvert</span>
+    </a>
+    <div class="nav-links">
+      <button class="nl" onclick="sc('how')" data-en="How it works" data-fr="Comment ça marche">How it works</button>
+      <button class="nl" onclick="sc('usecases')" data-en="Use cases" data-fr="Cas d'usage">Use cases</button>
+      <button class="nl" onclick="sc('pricing')" data-en="Pricing" data-fr="Tarifs">Pricing</button>
+      <button class="nl" onclick="sc('faq')" data-en="FAQ" data-fr="FAQ">FAQ</button>
+    </div>
+    <div class="nav-r">
+      <button class="lbtn on" id="ben" onclick="sl('en')">EN</button>
+      <button class="lbtn" id="bfr" onclick="sl('fr')">FR</button>
+      <button class="ncta" onclick="pg('up')" data-en="Try free" data-fr="Essayer gratuitement">Try free</button>
+    </div>
+  </div>
+</nav>
+
+<div id="land">
+
+<!-- 1. HERO -->
+<section class="hero">
+  <div class="hero-tag"><span class="hero-dot"></span><span data-en="Free to try — no account needed" data-fr="Gratuit pour essayer — sans compte">Free to try — no account needed</span></div>
+  <h1 data-en="Convert any bank statement<br><em>to clean data. In seconds.</em>" data-fr="Convertissez n'importe quel relevé<br><em>en données propres. En quelques secondes.</em>">Convert any bank statement<br><em>to clean data. In seconds.</em></h1>
+  <p class="hero-sub" data-en="Upload a PDF, CSV, Excel or photo of your bank statement. Every transaction is extracted, structured and ready to export — no copy-pasting, no manual entry, no formatting headaches." data-fr="Importez un PDF, CSV, Excel ou une photo de votre relevé bancaire. Chaque transaction est extraite, structurée et prête à exporter — sans copier-coller, sans saisie manuelle, sans mise en forme fastidieuse.">Upload a PDF, CSV, Excel or photo of your bank statement. Every transaction is extracted, structured and ready to export — no copy-pasting, no manual entry, no formatting headaches.</p>
+  <div class="hero-acts">
+    <button class="btn-p" onclick="pg('up')">
+      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="16 16 12 12 8 16"/><line x1="12" y1="12" x2="12" y2="21"/><path d="M20.39 18.39A5 5 0 0 0 18 9h-1.26A8 8 0 1 0 3 16.3"/></svg>
+      <span data-en="Try free — no account" data-fr="Essayer gratuitement — sans compte">Try free — no account</span>
+    </button>
+    <button class="btn-g" onclick="sc('how')" data-en="See how it works" data-fr="Voir comment ça marche">See how it works</button>
+  </div>
+  <div class="hero-trust">
+    <span class="htb" data-en="No signup required" data-fr="Sans inscription">No signup required</span>
+    <span class="htb" data-en="Files deleted automatically" data-fr="Fichiers supprimés automatiquement">Files deleted automatically</span>
+    <span class="htb" data-en="Encrypted in transit" data-fr="Chiffré en transit">Encrypted in transit</span>
+    <span class="htb" data-en="GDPR compliant" data-fr="Conforme RGPD">GDPR compliant</span>
+  </div>
+</section>
+
+<!-- 2. REASSURANCE -->
+<div class="reassurance">
+  <div class="reassurance-in">
+    <div class="rbadge">
+      <svg viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+      <span data-en="AES-256 encryption" data-fr="Chiffrement AES-256">AES-256 encryption</span>
+    </div>
+    <div class="rsep"></div>
+    <div class="rbadge">
+      <svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>
+      <span data-en="File auto-deleted in 60 min" data-fr="Fichier supprimé en 60 min">File auto-deleted in 60 min</span>
+    </div>
+    <div class="rsep"></div>
+    <div class="rbadge">
+      <svg viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+      <span data-en="GDPR compliant" data-fr="Conforme RGPD">GDPR compliant</span>
+    </div>
+    <div class="rsep"></div>
+    <div class="rbadge">
+      <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+      <span data-en="Fast processing — typically under 10s" data-fr="Traitement rapide — généralement sous 10s">Fast processing — typically under 10s</span>
+    </div>
+    <div class="rsep"></div>
+    <div class="rbadge">
+      <svg viewBox="0 0 24 24"><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/></svg>
+      <span data-en="CSV, Excel, JSON, OFX" data-fr="CSV, Excel, JSON, OFX">CSV, Excel, JSON, OFX</span>
+    </div>
+  </div>
+</div>
+
+<!-- DEMO -->
+<div class="demo-wrap reveal">
+  <div class="demo-window">
+    <div class="demo-bar">
+      <div class="db-dot" style="background:#ff5f57"></div>
+      <div class="db-dot" style="background:#febc2e"></div>
+      <div class="db-dot" style="background:#28c840"></div>
+      <div class="demo-url">statementconvert.netlify.app — demo</div>
+    </div>
+    <div class="demo-body">
+      <div class="demo-l">
+        <div class="drop-area" id="demo-drop" onclick="runDemo()">
+          <div class="drop-icon"><svg viewBox="0 0 24 24"><polyline points="16 16 12 12 8 16"/><line x1="12" y1="12" x2="12" y2="21"/><path d="M20.39 18.39A5 5 0 0 0 18 9h-1.26A8 8 0 1 0 3 16.3"/></svg></div>
+          <div class="drop-title" data-en="Click to simulate a conversion" data-fr="Cliquez pour simuler une conversion">Click to simulate a conversion</div>
+          <div class="drop-sub" data-en="Interactive demo — no file needed" data-fr="Démo interactive — aucun fichier requis">Interactive demo — no file needed</div>
+          <div class="drop-fmts"><span class="fmt">PDF</span><span class="fmt">CSV</span><span class="fmt">Excel</span><span class="fmt">IMG</span></div>
+        </div>
+        <div class="processing" id="demo-proc">
+          <div class="proc-ring"></div>
+          <div class="proc-label" data-en="Extracting transactions..." data-fr="Extraction des transactions...">Extracting transactions...</div>
+        </div>
+      </div>
+      <div class="demo-r">
+        <table><thead><tr>
+          <th data-en="Date" data-fr="Date">Date</th>
+          <th data-en="Description" data-fr="Description">Description</th>
+          <th data-en="Amount" data-fr="Montant">Amount</th>
+          <th data-en="Cat." data-fr="Cat.">Cat.</th>
+        </tr></thead>
+        <tbody id="demo-body"></tbody></table>
+      </div>
+    </div>
+    <div class="demo-footer">
+      <div class="demo-status" id="demo-status" style="visibility:hidden" data-en="Ready — 8 transactions extracted" data-fr="Prêt — 8 transactions extraites">Ready — 8 transactions extracted</div>
+      <div class="exp-row">
+        <button class="exp-b exp-csv">CSV</button>
+        <button class="exp-b exp-xlsx">Excel</button>
+        <button class="exp-b exp-json">JSON</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- 3. HOW IT WORKS -->
+<div class="sec-bg" style="background:var(--bg)" id="how">
+  <div class="sec-bg-in">
+    <div class="sec-label reveal" data-en="How it works" data-fr="Comment ça marche">How it works</div>
+    <h2 class="reveal d1" data-en="Three steps.<br><em>Zero manual entry.</em>" data-fr="Trois étapes.<br><em>Aucune saisie manuelle.</em>">Three steps.<br><em>Zero manual entry.</em></h2>
+    <div class="steps">
+      <div class="step reveal d1">
+        <div class="step-n">01</div>
+        <div class="step-icon"><svg viewBox="0 0 24 24"><polyline points="16 16 12 12 8 16"/><line x1="12" y1="12" x2="12" y2="21"/><path d="M20.39 18.39A5 5 0 0 0 18 9h-1.26A8 8 0 1 0 3 16.3"/></svg></div>
+        <h3 data-en="Upload your statement" data-fr="Importez votre relevé">Upload your statement</h3>
+        <p data-en="Drop a PDF, CSV, Excel or a photo of your bank statement. No account needed. Works with digital PDFs and scanned images. Formats: PDF, CSV, XLS, JPG, PNG." data-fr="Déposez un PDF, CSV, Excel ou une photo de votre relevé bancaire. Sans compte. Compatible PDF numérique et images scannées. Formats : PDF, CSV, XLS, JPG, PNG.">Drop a PDF, CSV, Excel or a photo of your bank statement. No account needed. Works with digital PDFs and scanned images. Formats: PDF, CSV, XLS, JPG, PNG.</p>
+      </div>
+      <div class="step reveal d2">
+        <div class="step-n">02</div>
+        <div class="step-icon"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14M4.93 4.93a10 10 0 0 0 0 14.14"/></svg></div>
+        <h3 data-en="Transactions extracted automatically" data-fr="Transactions extraites automatiquement">Transactions extracted automatically</h3>
+        <p data-en="Every date, description, amount and balance is read and structured in seconds. No templates, no manual rules — it just works." data-fr="Chaque date, description, montant et solde est lu et structuré en quelques secondes. Sans modèles ni règles manuelles.">Every date, description, amount and balance is read and structured in seconds. No templates, no manual rules — it just works.</p>
+      </div>
+      <div class="step reveal d3">
+        <div class="step-n">03</div>
+        <div class="step-icon"><svg viewBox="0 0 24 24"><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/></svg></div>
+        <h3 data-en="Review, edit and download" data-fr="Vérifiez, éditez et téléchargez">Review, edit and download</h3>
+        <p data-en="Preview all transactions in a table. Click any cell to edit it before downloading. Export to CSV, Excel, JSON or OFX — what you see is what you get." data-fr="Prévisualisez toutes les transactions dans un tableau. Cliquez sur n'importe quelle cellule pour l'éditer. Exportez en CSV, Excel, JSON ou OFX.">Preview all transactions in a table. Click any cell to edit it before downloading. Export to CSV, Excel, JSON or OFX — what you see is what you get.</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- 4. FEATURES -->
+<section class="sec">
+  <div class="sec-label reveal" data-en="Features" data-fr="Fonctionnalités">Features</div>
+  <h2 class="reveal d1" data-en="Everything you need to go<br><em>from PDF to spreadsheet</em>" data-fr="Tout ce qu'il faut pour passer<br><em>du PDF au tableur</em>">Everything you need to go<br><em>from PDF to spreadsheet</em></h2>
+  <div class="feat-grid">
+    <div class="feat reveal">
+      <div class="feat-icon"><svg viewBox="0 0 24 24"><polyline points="16 16 12 12 8 16"/><line x1="12" y1="12" x2="12" y2="21"/><path d="M20.39 18.39A5 5 0 0 0 18 9h-1.26A8 8 0 1 0 3 16.3"/></svg></div>
+      <h3 data-en="All common formats supported" data-fr="Tous les formats courants supportés">All common formats supported</h3>
+      <p data-en="PDF (digital or scanned), CSV, Excel, JPG, PNG. Supports 47+ bank statement formats from major US, UK and European banks." data-fr="PDF (numérique ou scanné), CSV, Excel, JPG, PNG. Supporte 47+ formats de relevés des principales banques US, UK et européennes.">PDF (digital or scanned), CSV, Excel, JPG, PNG. Supports 47+ bank statement formats from major US, UK and European banks.</p>
+    </div>
+    <div class="feat reveal d1">
+      <div class="feat-icon"><svg viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg></div>
+      <h3 data-en="Edit before you export" data-fr="Éditez avant d'exporter">Edit before you export</h3>
+      <p data-en="Every cell in the preview table is editable. Fix descriptions, amounts or categories before downloading — what you see is what you get." data-fr="Chaque cellule du tableau est modifiable. Corrigez descriptions, montants ou catégories avant de télécharger — ce que vous voyez est ce que vous obtenez.">Every cell in the preview table is editable. Fix descriptions, amounts or categories before downloading — what you see is what you get.</p>
+    </div>
+    <div class="feat reveal d2">
+      <div class="feat-icon"><svg viewBox="0 0 24 24"><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/></svg></div>
+      <h3 data-en="4 export formats" data-fr="4 formats d'export">4 export formats</h3>
+      <p data-en="CSV for spreadsheets. Excel (.xlsx) for accountants. JSON for developers. OFX for direct import into QuickBooks, Xero and Sage." data-fr="CSV pour les tableurs. Excel (.xlsx) pour les comptables. JSON pour les développeurs. OFX pour import direct dans QuickBooks, Xero et Sage.">CSV for spreadsheets. Excel (.xlsx) for accountants. JSON for developers. OFX for direct import into QuickBooks, Xero and Sage.</p>
+    </div>
+    <div class="feat reveal d3">
+      <div class="feat-icon"><svg viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg></div>
+      <h3 data-en="Built for privacy" data-fr="Conçu pour la confidentialité">Built for privacy</h3>
+      <p data-en="Files are encrypted with AES-256 in transit and permanently deleted from our servers within 1 hour of upload. We never read, store or sell your data." data-fr="Les fichiers sont chiffrés avec AES-256 en transit et définitivement supprimés de nos serveurs dans l'heure suivant l'upload. Nous ne lisons, ne stockons ni ne vendons jamais vos données.">Files are encrypted with AES-256 in transit and permanently deleted from our servers within 1 hour of upload. We never read, store or sell your data.</p>
+    </div>
+  </div>
+</section>
+
+<!-- 5. SECURITY -->
+<div class="sec-dark">
+  <div class="sec-dark-in">
+    <div class="sec-label reveal" data-en="Security & privacy" data-fr="Sécurité & confidentialité">Security & privacy</div>
+    <h2 class="reveal d1" data-en="Your data never leaves<br><em>your control</em>" data-fr="Vos données restent<br><em>sous votre contrôle</em>">Your data never leaves<br><em>your control</em></h2>
+    <div class="trust-grid">
+      <div class="tc reveal"><div class="tc-n">01</div><h4 data-en="AES-256 encryption" data-fr="Chiffrement AES-256">AES-256 encryption</h4><p data-en="Every upload is encrypted using AES-256, the same standard used by financial institutions worldwide." data-fr="Chaque upload est chiffré avec AES-256, le même standard que les institutions financières mondiales.">Every upload is encrypted using AES-256, the same standard used by financial institutions worldwide.</p></div>
+      <div class="tc reveal d1"><div class="tc-n">02</div><h4 data-en="Deleted within 1 hour" data-fr="Supprimé en 1 heure">Deleted within 1 hour</h4><p data-en="Your file is automatically and permanently deleted from our servers within 60 minutes of upload. No exceptions, no archives." data-fr="Votre fichier est automatiquement et définitivement supprimé de nos serveurs dans les 60 minutes. Sans exception.">Your file is automatically and permanently deleted from our servers within 60 minutes of upload. No exceptions, no archives.</p></div>
+      <div class="tc reveal d2"><div class="tc-n">03</div><h4 data-en="No data sold or shared" data-fr="Aucune donnée vendue">No data sold or shared</h4><p data-en="We do not sell, share or analyze your financial data. Your transactions are processed, returned to you, and discarded." data-fr="Nous ne vendons, ne partageons ni n'analysons vos données financières. Vos transactions sont traitées, retournées et supprimées.">We do not sell, share or analyze your financial data. Your transactions are processed, returned to you, and discarded.</p></div>
+      <div class="tc reveal d3"><div class="tc-n">04</div><h4 data-en="GDPR compliant" data-fr="Conforme RGPD">GDPR compliant</h4><p data-en="StatementConvert is designed to comply with GDPR. No account is required to use the product — zero mandatory data collection." data-fr="StatementConvert est conçu pour être conforme au RGPD. Aucun compte requis — zéro collecte de données obligatoire.">StatementConvert is designed to comply with GDPR. No account is required to use the product — zero mandatory data collection.</p></div>
+    </div>
+  </div>
+</div>
+
+<!-- USE CASES -->
+<section class="sec" id="usecases">
+  <div class="sec-label reveal" data-en="Who it's for" data-fr="Pour qui">Who it's for</div>
+  <h2 class="reveal d1" data-en="Built for anyone who handles<br><em>bank statements regularly</em>" data-fr="Conçu pour quiconque gère<br><em>des relevés bancaires régulièrement</em>">Built for anyone who handles<br><em>bank statements regularly</em></h2>
+  <div class="use-grid">
+    <div class="use-card reveal">
+      <span class="use-emoji">📊</span>
+      <h3 data-en="Accountants & bookkeepers" data-fr="Comptables & experts-comptables">Accountants & bookkeepers</h3>
+      <p data-en="Convert client statements to OFX or CSV for direct import into QuickBooks, Xero or Sage. Eliminate manual entry and reduce errors." data-fr="Convertissez les relevés clients en OFX ou CSV pour import direct dans QuickBooks, Xero ou Sage. Éliminez la saisie manuelle.">Convert client statements to OFX or CSV for direct import into QuickBooks, Xero or Sage. Eliminate manual entry and reduce errors.</p>
+    </div>
+    <div class="use-card reveal d1">
+      <span class="use-emoji">💼</span>
+      <h3 data-en="Freelancers & self-employed" data-fr="Freelances & auto-entrepreneurs">Freelancers & self-employed</h3>
+      <p data-en="Export your bank statement to Excel for expense tracking, VAT returns or client invoicing — in seconds, not hours." data-fr="Exportez votre relevé en Excel pour le suivi des dépenses, la TVA ou la facturation client — en quelques secondes.">Export your bank statement to Excel for expense tracking, VAT returns or client invoicing — in seconds, not hours.</p>
+    </div>
+    <div class="use-card reveal d2">
+      <span class="use-emoji">🏢</span>
+      <h3 data-en="Small businesses" data-fr="Petites entreprises">Small businesses</h3>
+      <p data-en="Reconcile accounts, track cash flow and prepare financial reports without copying and pasting from PDFs. Works with any bank." data-fr="Réconciliez les comptes, suivez la trésorerie et préparez des rapports financiers sans copier-coller depuis des PDF. Compatible avec toutes les banques.">Reconcile accounts, track cash flow and prepare financial reports without copying and pasting from PDFs. Works with any bank.</p>
+    </div>
+  </div>
+</section>
+
+<!-- 6. SUPPORTED BANKS -->
+<div class="banks-wrap">
+  <div class="banks-in">
+    <div class="sec-label reveal" data-en="Supported formats" data-fr="Formats supportés">Supported formats</div>
+    <h2 class="reveal d1" data-en="Works with major banks<br><em>worldwide</em>" data-fr="Compatible avec les principales banques<br><em>mondiales</em>">Works with major banks<br><em>worldwide</em></h2>
+    <p class="sec-sub reveal d2" data-en="Tested with banks across the US, UK and Europe. Don't see yours? Contact us — we add new formats regularly." data-fr="Testé avec des banques aux États-Unis, au Royaume-Uni et en Europe. Vous ne trouvez pas la vôtre ? Contactez-nous.">Tested with banks across the US, UK and Europe. Don't see yours? Contact us — we add new formats regularly.</p>
+    <div class="banks reveal d3">
+      <span class="bp">Chase</span><span class="bp">Bank of America</span><span class="bp">Wells Fargo</span><span class="bp">Citibank</span><span class="bp">Barclays</span><span class="bp">HSBC</span><span class="bp">Revolut</span><span class="bp">Wise</span><span class="bp">Monzo</span><span class="bp">N26</span><span class="bp">Starling</span><span class="bp">Lloyds</span><span class="bp">NatWest</span><span class="bp">Santander</span><span class="bp">BNP Paribas</span><span class="bp">Société Générale</span><span class="bp">Crédit Agricole</span><span class="bp">LCL</span><span class="bp">ING</span><span class="bp">Deutsche Bank</span><span class="bp">Commerzbank</span><span class="bp">UniCredit</span><span class="bp">CaixaBank</span><span class="bp">BBVA</span><span class="bp">Intesa Sanpaolo</span><span class="bp">Rabobank</span><span class="bp">+ 21 more</span>
+    </div>
+  </div>
+</div>
+
+<!-- 7. PRICING -->
+<section class="sec" id="pricing">
+  <div class="sec-label reveal" data-en="Pricing" data-fr="Tarifs">Pricing</div>
+  <h2 class="reveal d1" data-en="Start free.<br><em>Pay only when you need more.</em>" data-fr="Commencez gratuitement.<br><em>Payez seulement si vous avez besoin de plus.</em>">Start free.<br><em>Pay only when you need more.</em></h2>
+  <p class="sec-sub reveal d2" data-en="No credit card to try. Cancel anytime. Prices are launch suggestions and may evolve." data-fr="Aucune carte bancaire pour essayer. Annulez à tout moment. Les prix sont indicatifs et peuvent évoluer.">No credit card to try. Cancel anytime. Prices are launch suggestions and may evolve.</p>
+
+  <div class="price-grid">
+    <!-- FREE TRIAL -->
+    <div class="plan reveal">
+      <div class="plan-tag" data-en="FREE" data-fr="GRATUIT">FREE</div>
+      <div class="plan-price"><sup>€</sup>0</div>
+      <div class="plan-desc" data-en="Try the full workflow with no commitment. No card, no account." data-fr="Testez le workflow complet sans engagement. Sans carte, sans compte.">Try the full workflow with no commitment. No card, no account.</div>
+      <hr class="plan-div">
+      <ul class="plan-feats">
+        <li data-en="Up to 3 conversions" data-fr="Jusqu'à 3 conversions">Up to 3 conversions</li>
+        <li data-en="PDF, image, CSV upload" data-fr="Upload PDF, image, CSV">PDF, image, CSV upload</li>
+        <li data-en="Export to CSV & Excel" data-fr="Export CSV & Excel">Export to CSV & Excel</li>
+        <li data-en="Preview & edit before export" data-fr="Aperçu & édition avant export">Preview & edit before export</li>
+      </ul>
+      <button class="pbtn" onclick="pg('up')" data-en="Try for free" data-fr="Essayer gratuitement">Try for free</button>
+    </div>
+
+    <!-- STARTER -->
+    <div class="plan reveal d1">
+      <div class="plan-tag">STARTER</div>
+      <div class="plan-price"><sup>€</sup>19<sub data-en="/month" data-fr="/mois">/month</sub></div>
+      <div class="plan-desc" data-en="For freelancers and self-employed who convert statements regularly." data-fr="Pour les freelances et indépendants qui convertissent régulièrement.">For freelancers and self-employed who convert statements regularly.</div>
+      <hr class="plan-div">
+      <ul class="plan-feats">
+        <li data-en="20 conversions per month" data-fr="20 conversions par mois">20 conversions per month</li>
+        <li data-en="PDF, CSV, image upload" data-fr="Upload PDF, CSV, image">PDF, CSV, image upload</li>
+        <li data-en="Export to CSV & Excel" data-fr="Export CSV & Excel">Export to CSV & Excel</li>
+        <li data-en="Preview & inline editing" data-fr="Aperçu & édition">Preview & inline editing</li>
+        <li data-en="30-day conversion history" data-fr="Historique 30 jours">30-day conversion history</li>
+      </ul>
+      <button class="pbtn" onclick="stripeCheckout('price_STARTER')" data-en="Start with Starter" data-fr="Commencer avec Starter">Start with Starter</button>
+    </div>
+
+    <!-- PRO -->
+    <div class="plan feat reveal d2">
+      <div class="plan-badge" data-en="MOST POPULAR" data-fr="LE PLUS CHOISI">MOST POPULAR</div>
+      <div class="plan-tag">PRO</div>
+      <div class="plan-price"><sup>€</sup>49<sub data-en="/month" data-fr="/mois">/month</sub></div>
+      <div class="plan-desc" data-en="For accountants and bookkeepers with higher volume needs." data-fr="Pour les comptables et experts-comptables avec un volume élevé.">For accountants and bookkeepers with higher volume needs.</div>
+      <hr class="plan-div">
+      <ul class="plan-feats">
+        <li data-en="Unlimited conversions" data-fr="Conversions illimitées">Unlimited conversions</li>
+        <li data-en="All formats: CSV, Excel, JSON, OFX" data-fr="CSV, Excel, JSON, OFX">All formats: CSV, Excel, JSON, OFX</li>
+        <li data-en="Full conversion history" data-fr="Historique complet">Full conversion history</li>
+        <li data-en="Priority processing" data-fr="Traitement prioritaire">Priority processing</li>
+        <li data-en="Email support" data-fr="Support par email">Email support</li>
+      </ul>
+      <button class="pbtn pri" onclick="stripeCheckout('price_1TQkQIRqpJ66wdpMGLD9KeVX')" data-en="Start with Pro" data-fr="Commencer avec Pro">Start with Pro</button>
+    </div>
+
+    <!-- TEAM -->
+    <div class="plan reveal d3">
+      <div class="plan-tag">TEAM</div>
+      <div class="plan-price"><sup>€</sup>99<sub data-en="/month" data-fr="/mois">/month</sub></div>
+      <div class="plan-desc" data-en="For small teams and accounting firms." data-fr="Pour les petites équipes et cabinets comptables.">For small teams and accounting firms.</div>
+      <hr class="plan-div">
+      <ul class="plan-feats">
+        <li data-en="Everything in Pro" data-fr="Tout du plan Pro">Everything in Pro</li>
+        <li data-en="Up to 5 team members" data-fr="Jusqu'à 5 membres">Up to 5 team members</li>
+        <li data-en="Shared conversion history" data-fr="Historique partagé">Shared conversion history</li>
+        <li data-en="Priority support" data-fr="Support prioritaire">Priority support</li>
+        <li data-en="Early access to new features" data-fr="Accès anticipé aux nouveautés">Early access to new features</li>
+      </ul>
+      <button class="pbtn" onclick="stripeCheckout('price_TEAM')" data-en="Start with Team" data-fr="Commencer avec Team">Start with Team</button>
+    </div>
+  </div>
+
+  <!-- ENTERPRISE -->
+  <div class="enterprise-row reveal">
+    <div class="enterprise-left">
+      <h3 data-en="Enterprise" data-fr="Entreprise">Enterprise</h3>
+      <p data-en="Custom volume, SSO, SLA, dedicated support and security review. For accounting firms, fintechs and large businesses." data-fr="Volume sur-mesure, SSO, SLA, support dédié et revue de sécurité. Pour cabinets, fintechs et grandes entreprises.">Custom volume, SSO, SLA, dedicated support and security review. For accounting firms, fintechs and large businesses.</p>
+    </div>
+    <button class="pbtn-outline" onclick="window.location.href='mailto:hello@statementconvert.app'" data-en="Contact us" data-fr="Nous contacter">Contact us</button>
+  </div>
+
+  <p class="price-note reveal" data-en="⚠ These are suggested launch prices and may change. All paid plans include a 7-day refund if the product doesn't work as expected for your use case." data-fr="⚠ Ces prix sont des tarifs de lancement indicatifs et peuvent évoluer. Tous les plans payants incluent un remboursement de 7 jours si le produit ne fonctionne pas comme prévu.">⚠ These are suggested launch prices and may change. All paid plans include a 7-day refund if the product doesn't work as expected for your use case.</p>
+</section>
+
+<!-- 8. FAQ -->
+<div class="faq-wrap" id="faq">
+  <div class="faq-in">
+    <div class="sec-label reveal" data-en="FAQ" data-fr="Questions fréquentes">FAQ</div>
+    <h2 class="reveal d1" data-en="Common questions,<br><em>answered honestly</em>" data-fr="Questions courantes,<br><em>répondues honnêtement</em>">Common questions,<br><em>answered honestly</em></h2>
+    <div class="flist">
+      <div class="fi"><button class="fq" onclick="faq(this)"><span data-en="How do I convert a PDF bank statement to Excel?" data-fr="Comment convertir un relevé PDF en Excel ?">How do I convert a PDF bank statement to Excel?</span><span class="fa-icon">+</span></button><div class="fa" data-en="Upload your PDF on the conversion page. Every transaction is extracted automatically — date, description, amount, balance. Review the table, edit any cell if needed, then click Download Excel. No formatting, no copy-pasting." data-fr="Importez votre PDF sur la page de conversion. Chaque transaction est extraite automatiquement — date, description, montant, solde. Vérifiez le tableau, modifiez si besoin, puis téléchargez en Excel.">Upload your PDF on the conversion page. Every transaction is extracted automatically — date, description, amount, balance. Review the table, edit any cell if needed, then click Download Excel. No formatting, no copy-pasting.</div></div>
+      <div class="fi"><button class="fq" onclick="faq(this)"><span data-en="How accurate is the extraction?" data-fr="Quelle est la précision de l'extraction ?">How accurate is the extraction?</span><span class="fa-icon">+</span></button><div class="fa" data-en="Accuracy is high for clean digital PDFs and structured CSVs. Scanned or low-quality images may have occasional errors — which is why every cell in the preview is editable before you download. Always review the result before using it in your accounting software." data-fr="La précision est élevée pour les PDF numériques propres et les CSV structurés. Les images scannées ou de mauvaise qualité peuvent contenir des erreurs occasionnelles — c'est pourquoi chaque cellule de l'aperçu est modifiable avant téléchargement. Vérifiez toujours le résultat avant de l'utiliser dans votre logiciel comptable.">Accuracy is high for clean digital PDFs and structured CSVs. Scanned or low-quality images may have occasional errors — which is why every cell in the preview is editable before you download. Always review the result before using it in your accounting software.</div></div>
+      <div class="fi"><button class="fq" onclick="faq(this)"><span data-en="Is my financial data safe and private?" data-fr="Mes données financières sont-elles sécurisées ?">Is my financial data safe and private?</span><span class="fa-icon">+</span></button><div class="fa" data-en="Yes. Files are encrypted in transit and permanently deleted from our servers within 1 hour of upload. We do not store, read or analyze your financial data. StatementConvert is designed to be GDPR compliant." data-fr="Oui. Les fichiers sont chiffrés en transit et supprimés définitivement de nos serveurs en 1 heure. Nous ne stockons, ne lisons ni n'analysons vos données financières. StatementConvert est conçu pour être conforme au RGPD.">Yes. Files are encrypted in transit and permanently deleted from our servers within 1 hour of upload. We do not store, read or analyze your financial data. StatementConvert is designed to be GDPR compliant.</div></div>
+      <div class="fi"><button class="fq" onclick="faq(this)"><span data-en="Which file types and banks are supported?" data-fr="Quels formats de fichiers et banques sont supportés ?">Which file types and banks are supported?</span><span class="fa-icon">+</span></button><div class="fa" data-en="We support PDF (digital and scanned), CSV, Excel, JPG and PNG. The tool works with most major bank statement formats across the US, UK and Europe — including Chase, BofA, Barclays, HSBC, Revolut, Wise, BNP Paribas and Société Générale. If your bank isn't recognized, contact us." data-fr="Nous supportons les PDF (numériques et scannés), CSV, Excel, JPG et PNG. L'outil fonctionne avec la plupart des formats des grandes banques US, UK et européennes — Chase, BofA, Barclays, HSBC, Revolut, Wise, BNP Paribas, Société Générale. Si votre banque n'est pas reconnue, contactez-nous.">We support PDF (digital and scanned), CSV, Excel, JPG and PNG. The tool works with most major bank statement formats across the US, UK and Europe — including Chase, BofA, Barclays, HSBC, Revolut, Wise, BNP Paribas and Société Générale. If your bank isn't recognized, contact us.</div></div>
+      <div class="fi"><button class="fq" onclick="faq(this)"><span data-en="How long does a conversion take?" data-fr="Combien de temps prend une conversion ?">How long does a conversion take?</span><span class="fa-icon">+</span></button><div class="fa" data-en="Most digital PDFs and CSVs are processed in under 10 seconds. Scanned or complex documents may take slightly longer. A live progress indicator shows you where things stand." data-fr="La plupart des PDF numériques et CSV sont traités en moins de 10 secondes. Les documents scannés ou complexes peuvent prendre un peu plus de temps. Un indicateur de progression vous tient informé.">Most digital PDFs and CSVs are processed in under 10 seconds. Scanned or complex documents may take slightly longer. A live progress indicator shows you where things stand.</div></div>
+      <div class="fi"><button class="fq" onclick="faq(this)"><span data-en="Can I edit transactions before downloading?" data-fr="Puis-je modifier les transactions avant de télécharger ?">Can I edit transactions before downloading?</span><span class="fa-icon">+</span></button><div class="fa" data-en="Yes. Every cell in the preview table is editable — click to modify descriptions, amounts or categories. The downloaded file reflects exactly what you see in the preview." data-fr="Oui. Chaque cellule du tableau d'aperçu est modifiable. Le fichier téléchargé reflète exactement ce que vous voyez dans l'aperçu.">Yes. Every cell in the preview table is editable — click to modify descriptions, amounts or categories. The downloaded file reflects exactly what you see in the preview.</div></div>
+      <div class="fi"><button class="fq" onclick="faq(this)"><span data-en="What export formats are available?" data-fr="Quels formats d'export sont disponibles ?">What export formats are available?</span><span class="fa-icon">+</span></button><div class="fa" data-en="CSV (works with all spreadsheets), Excel .xlsx (for accountants), JSON (for developers), and OFX (for direct import into QuickBooks, Xero and Sage). CSV and Excel are available on all plans including free. JSON and OFX require a paid plan." data-fr="CSV (compatible avec tous les tableurs), Excel .xlsx (pour les comptables), JSON (pour les développeurs) et OFX (pour import direct dans QuickBooks, Xero et Sage). CSV et Excel sont disponibles sur tous les plans. JSON et OFX nécessitent un plan payant.">CSV (works with all spreadsheets), Excel .xlsx (for accountants), JSON (for developers), and OFX (for direct import into QuickBooks, Xero and Sage). CSV and Excel are available on all plans including free. JSON and OFX require a paid plan.</div></div>
+      <div class="fi"><button class="fq" onclick="faq(this)"><span data-en="Do I need to create an account?" data-fr="Dois-je créer un compte ?">Do I need to create an account?</span><span class="fa-icon">+</span></button><div class="fa" data-en="No account is needed to try StatementConvert for free. Upload, convert and download without registering. An account is required only for paid plans and to access conversion history." data-fr="Aucun compte n'est requis pour essayer StatementConvert gratuitement. Importez, convertissez et téléchargez sans vous inscrire. Un compte est requis uniquement pour les plans payants et l'accès à l'historique.">No account is needed to try StatementConvert for free. Upload, convert and download without registering. An account is required only for paid plans and to access conversion history.</div></div>
+    </div>
+  </div>
+</div>
+
+<!-- 9. CTA FINAL -->
+<section class="cta-sec">
+  <div class="cta-box reveal">
+    <h2 data-en="Stop copy-pasting<br><em>from bank PDFs.</em>" data-fr="Arrêtez de copier-coller<br><em>depuis des PDF bancaires.</em>">Stop copy-pasting<br><em>from bank PDFs.</em></h2>
+    <p data-en="Try StatementConvert for free. Upload a statement, see your transactions in seconds, download in the format you need." data-fr="Essayez StatementConvert gratuitement. Importez un relevé, consultez vos transactions en quelques secondes, téléchargez dans le format souhaité.">Try StatementConvert for free. Upload a statement, see your transactions in seconds, download in the format you need.</p>
+    <div class="cta-btns">
+      <button class="btn-p" onclick="pg('up')" data-en="Try free — no account" data-fr="Essayer gratuitement — sans compte">Try free — no account</button>
+      <button class="btn-g" onclick="sc('pricing')" data-en="View pricing" data-fr="Voir les tarifs">View pricing</button>
+    </div>
+    <div class="cta-trust">
+      <span data-en="No signup required" data-fr="Sans inscription">No signup required</span>
+      <span data-en="Files deleted in 1h" data-fr="Fichiers supprimés en 1h">Files deleted in 1h</span>
+      <span data-en="Encrypted in transit" data-fr="Chiffré en transit">Encrypted in transit</span>
+      <span data-en="GDPR compliant" data-fr="Conforme RGPD">GDPR compliant</span>
+    </div>
+  </div>
+</section>
+
+<!-- 10. FOOTER -->
+<footer>
+  <div class="ft-in">
+    <div class="ft-l">
+      <a class="logo" href="#" onclick="pg('land');return false">
+        <svg class="logo-img" viewBox="0 0 680 680"><use href="#SC"/></svg>
+        <span class="logo-name">StatementConvert</span>
+      </a>
+      <div class="ft-trust">
+        <span class="ftr" data-en="AES-256 encrypted" data-fr="Chiffré AES-256">AES-256 encrypted</span>
+        <span class="ftr" data-en="GDPR compliant" data-fr="Conforme RGPD">GDPR compliant</span>
+        <span class="ftr" data-en="File deleted in 1h" data-fr="Supprimé en 1h">File deleted in 1h</span>
+        <span class="ftr" data-en="No data sold" data-fr="Données non vendues">No data sold</span>
+      </div>
+    </div>
+    <div class="ft-r">
+      <div class="ft-links">
+        <a href="#" data-en="Privacy Policy" data-fr="Confidentialité">Privacy Policy</a>
+        <a href="#" data-en="Terms of Service" data-fr="CGU">Terms of Service</a>
+        <a href="mailto:hello@statementconvert.app">Contact</a>
+      </div>
+      <div class="ft-copy" data-en="© 2025 StatementConvert" data-fr="© 2025 StatementConvert">© 2025 StatementConvert</div>
+    </div>
+  </div>
+</footer>
+</div><!-- /land -->
+<!-- UPLOAD PAGE -->
+<div id="up" style="display:none">
+<div class="upg">
+  <button class="bk" onclick="pg('land')">← <span data-en="Back" data-fr="Retour">Back</span></button>
+  <h1 data-en="Convert your statement" data-fr="Convertissez votre relevé">Convert your statement</h1>
+  <p class="sub" data-en="Drop any bank statement — PDF, CSV, Excel or a photo. Free to try, no account needed." data-fr="Déposez n'importe quel relevé — PDF, CSV, Excel ou une photo. Gratuit, sans compte.">Drop any bank statement — PDF, CSV, Excel or a photo. Free to try, no account needed.</p>
+  <div class="dz" id="dz">
+    <input type="file" id="fi" accept=".pdf,.csv,.xlsx,.xls,.jpg,.jpeg,.png" onchange="onF(this)">
+    <div class="dz-icon"><svg viewBox="0 0 24 24"><polyline points="16 16 12 12 8 16"/><line x1="12" y1="12" x2="12" y2="21"/><path d="M20.39 18.39A5 5 0 0 0 18 9h-1.26A8 8 0 1 0 3 16.3"/></svg></div>
+    <div class="dz-t" data-en="Drop your file here" data-fr="Déposez votre fichier ici">Drop your file here</div>
+    <div class="dz-s" data-en="or click to browse — max 10MB" data-fr="ou cliquez pour parcourir — max 10MB">or click to browse — max 10MB</div>
+    <div class="dz-fmts"><span class="fmt">PDF</span><span class="fmt">CSV</span><span class="fmt">Excel</span><span class="fmt">JPG</span><span class="fmt">PNG</span></div>
+  </div>
+  <div class="frow" id="frow">
+    <div class="fri"><svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg></div>
+    <div><div class="fnm" id="fn"></div><div class="fsz" id="fs"></div></div>
+    <button class="frm" onclick="cf()">×</button>
+  </div>
+  <div class="opts">
+    <div class="og">
+      <label data-en="Statement language" data-fr="Langue du relevé">Statement language</label>
+      <select id="ls" onchange="sl(this.value)">
+        <option value="en">🇬🇧 English</option>
+        <option value="fr">🇫🇷 Français</option>
+        <option value="es">🇪🇸 Español</option>
+        <option value="de">🇩🇪 Deutsch</option>
+        <option value="it">🇮🇹 Italiano</option>
+      </select>
+    </div>
+    <div class="og">
+      <label data-en="Export format" data-fr="Format d'export">Export format</label>
+      <select id="fmt-sel">
+        <option value="excel">Excel (.xlsx)</option>
+        <option value="csv">CSV (.csv)</option>
+        <option value="json">JSON (.json)</option>
+        <option value="ofx">OFX (QuickBooks / Xero)</option>
+      </select>
+    </div>
+  </div>
+  <button class="cvbtn" id="cb" onclick="cv()" disabled>
+    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg>
+    <span data-en="Convert now — free" data-fr="Convertir maintenant — gratuit">Convert now — free</span>
+  </button>
+  <div class="sec-row">
+    <span class="si" data-en="AES-256 encrypted" data-fr="Chiffré AES-256">AES-256 encrypted</span>
+    <span class="si" data-en="Deleted in 1h" data-fr="Supprimé en 1h">Deleted in 1h</span>
+    <span class="si" data-en="Never stored" data-fr="Jamais stocké">Never stored</span>
+    <span class="si" data-en="GDPR compliant" data-fr="Conforme RGPD">GDPR compliant</span>
+  </div>
+  <div class="pw" id="pw">
+    <div class="phdr"><span id="pl">...</span><span id="pp">0%</span></div>
+    <div class="ptr"><div class="pb" id="pb"></div></div>
+    <div class="psteps">
+      <div class="ps" id="s1"><div class="psd"></div><span data-en="Uploading securely" data-fr="Upload sécurisé">Uploading securely</span></div>
+      <div class="ps" id="s2"><div class="psd"></div><span data-en="AI reading your statement" data-fr="L'IA lit votre relevé">AI reading your statement</span></div>
+      <div class="ps" id="s3"><div class="psd"></div><span data-en="Structuring transactions" data-fr="Structuration">Structuring transactions</span></div>
+      <div class="ps" id="s4"><div class="psd"></div><span data-en="Building preview" data-fr="Génération aperçu">Building preview</span></div>
+    </div>
+  </div>
+  <div class="rsp" id="rsp">
+    <div class="rchips">
+      <span class="rch rg" id="txn-count">✓ 8 transactions</span>
+      <span class="rch rb" id="demo-chip" style="display:none" data-en="Sample data — upload your own file above" data-fr="Données d'exemple — importez votre propre fichier">Sample data — upload your own file above</span>
+    </div>
+    <div class="ep">
+      <div class="ep-t" data-en="Download your data" data-fr="Téléchargez vos données">Download your data</div>
+      <div class="ebtns">
+        <button class="eb eb-c" onclick="dlCSV()"><svg viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg> CSV</button>
+        <button class="eb eb-x" onclick="dlExcel()"><svg viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg> Excel</button>
+        <button class="eb eb-j" onclick="dlJSON()"><svg viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg> JSON</button>
+        <button class="eb eb-o" onclick="dlOFX()"><svg viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg> OFX</button>
+      </div>
+    </div>
+    <div class="tw">
+      <table class="pr">
+        <thead><tr>
+          <th>#</th><th data-en="Date" data-fr="Date">Date</th>
+          <th data-en="Description" data-fr="Description">Description</th>
+          <th data-en="Amount" data-fr="Montant">Amount</th>
+          <th data-en="Balance" data-fr="Solde">Balance</th>
+          <th data-en="Category" data-fr="Catégorie">Cat.</th>
+        </tr></thead>
+        <tbody id="tb"></tbody>
+      </table>
+    </div>
+  </div>
+</div>
+</div>
+
+<!-- SheetJS for real .xlsx export (N2) -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+
+<script>
+'use strict';
+
+/* ═══════════════════════════════════════════
+   STATE
+═══════════════════════════════════════════ */
+let L = 'en';         // active language
+let sf = null;        // selected File object
+let TX = [];          // extracted transactions (real or demo fallback)
+let IS_DEMO = false;  // true when showing demo data, not real extraction
+
+/* ═══════════════════════════════════════════
+   TRACKING — N1
+   Lightweight, no external dependency.
+   Sends events to a /api/track endpoint if it
+   exists; falls back to console gracefully.
+   Easy to swap for Plausible / Posthog later.
+═══════════════════════════════════════════ */
+function track(event, props = {}) {
+  const payload = {
+    event,
+    props: { lang: L, ...props },
+    url: window.location.pathname,
+    ts: Date.now(),
+  };
+  // Fire-and-forget — never block UX on analytics
+  if (typeof navigator.sendBeacon === 'function') {
+    navigator.sendBeacon('/api/track', JSON.stringify(payload));
+  }
+  // Always log in dev for visibility
+  console.log('[track]', event, payload.props);
+}
+
+// Track initial page view
+track('page_view');
+
+/* ═══════════════════════════════════════════
+   I18N — minimal two-language support
+═══════════════════════════════════════════ */
+function sl(l) {
+  L = l;
+  document.getElementById('ben').classList.toggle('on', l === 'en');
+  document.getElementById('bfr').classList.toggle('on', l === 'fr');
+  document.querySelectorAll('[data-en]').forEach(el => {
+    const v = el.getAttribute('data-' + l);
+    if (v !== null) el.innerHTML = v;
+  });
+  document.documentElement.lang = l;
+  const ls = document.getElementById('ls');
+  if (ls && ls.value !== l) ls.value = l;
+}
+
+/* ═══════════════════════════════════════════
+   NAVIGATION — single-page show/hide
+═══════════════════════════════════════════ */
+function pg(id) {
+  document.getElementById('land').style.display = id === 'land' ? 'block' : 'none';
+  document.getElementById('up').style.display   = id === 'up'   ? 'block' : 'none';
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+  if (id === 'up') track('cta_click', { destination: 'upload_page' });
+}
+
+function sc(id) {
+  const el = document.getElementById(id);
+  if (el) { pg('land'); setTimeout(() => el.scrollIntoView({ behavior: 'smooth' }), 60); }
+  if (id === 'pricing') track('pricing_viewed');
+}
+
+function faq(btn) { btn.parentElement.classList.toggle('open'); }
+
+/* ═══════════════════════════════════════════
+   SCROLL REVEAL
+═══════════════════════════════════════════ */
+const obs = new IntersectionObserver(entries => {
+  entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('in'); });
+}, { threshold: 0.08 });
+document.querySelectorAll('.reveal').forEach(el => obs.observe(el));
+
+/* ═══════════════════════════════════════════
+   LANDING DEMO — interactive demo widget
+   Uses fixed demo data, clearly labelled.
+═══════════════════════════════════════════ */
+const DEMO_DATA = [
+  { date: 'Mar 01', desc: 'Netflix', amt: -15.99, cat: 'Sub' },
+  { date: 'Mar 03', desc: 'Salary deposit', amt: 4200, cat: 'Income' },
+  { date: 'Mar 05', desc: 'Whole Foods', amt: -87.42, cat: 'Groceries' },
+  { date: 'Mar 07', desc: 'Uber', amt: -22.10, cat: 'Transport' },
+  { date: 'Mar 09', desc: 'Freelance payment', amt: 850, cat: 'Income' },
+  { date: 'Mar 11', desc: 'Amazon Prime', amt: -14.99, cat: 'Sub' },
+  { date: 'Mar 15', desc: 'Apple iCloud', amt: -2.99, cat: 'Sub' },
+  { date: 'Mar 18', desc: 'Dentist', amt: -150, cat: 'Health' },
+];
+
+function runDemo() {
+  const drop   = document.getElementById('demo-drop');
+  const proc   = document.getElementById('demo-proc');
+  const status = document.getElementById('demo-status');
+  const tbody  = document.getElementById('demo-body');
+  drop.style.display = 'none';
+  proc.style.display = 'flex';
+  tbody.innerHTML = '';
+  status.style.visibility = 'hidden';
+  track('demo_started');
+
+  setTimeout(() => {
+    proc.style.display = 'none';
+    drop.style.display = 'flex';
+    DEMO_DATA.forEach((t, i) => {
+      setTimeout(() => {
+        const pos = t.amt >= 0;
+        const tr  = document.createElement('tr');
+        tr.style.animation = 'fadeUp .25s ease both';
+        tr.innerHTML = `<td>${t.date}</td><td>${t.desc}</td><td class="${pos ? 't-pos' : 't-neg'}">${pos ? '+' : '−'}$${Math.abs(t.amt).toFixed(2)}</td><td><span class="cat-tag">${t.cat}</span></td>`;
+        tbody.appendChild(tr);
+        if (i === DEMO_DATA.length - 1) {
+          status.style.visibility = 'visible';
+          track('demo_completed');
+        }
+      }, i * 110);
+    });
+  }, 1600);
+}
+
+/* ═══════════════════════════════════════════
+   UPLOAD PAGE — file selection & drag-drop
+═══════════════════════════════════════════ */
+const dz = document.getElementById('dz');
+if (dz) {
+  dz.addEventListener('dragover', e => { e.preventDefault(); dz.classList.add('ov'); });
+  dz.addEventListener('dragleave', () => dz.classList.remove('ov'));
+  dz.addEventListener('drop', e => {
+    e.preventDefault();
+    dz.classList.remove('ov');
+    const f = e.dataTransfer.files[0];
+    if (f) {
+      const dt = new DataTransfer();
+      dt.items.add(f);
+      document.getElementById('fi').files = dt.files;
+      onF(document.getElementById('fi'));
+    }
+  });
+}
+
+const ALLOWED_EXTS = ['.pdf', '.csv', '.xlsx', '.xls', '.jpg', '.jpeg', '.png'];
+const MAX_MB = 10;
+
+function onF(inp) {
+  const f = inp.files[0];
+  if (!f) return;
+
+  // Client-side format check
+  const ext = '.' + f.name.split('.').pop().toLowerCase();
+  if (!ALLOWED_EXTS.includes(ext)) {
+    notif(L === 'fr'
+      ? `Format non supporté : ${ext}. Utilisez PDF, CSV, Excel, JPG ou PNG.`
+      : `Unsupported format: ${ext}. Use PDF, CSV, Excel, JPG or PNG.`, true);
+    return;
+  }
+
+  // Client-side size check
+  if (f.size > MAX_MB * 1024 * 1024) {
+    notif(L === 'fr'
+      ? `Fichier trop lourd (max ${MAX_MB} MB).`
+      : `File too large (max ${MAX_MB} MB).`, true);
+    return;
+  }
+
+  sf = f;
+  document.getElementById('fn').textContent = f.name;
+  document.getElementById('fs').textContent = (f.size / 1024 / 1024).toFixed(2) + ' MB';
+  document.getElementById('frow').classList.add('show');
+  document.getElementById('cb').disabled = false;
+
+  track('file_selected', { ext, size_kb: Math.round(f.size / 1024) });
+}
+
+function cf() {
+  sf = null;
+  document.getElementById('fi').value = '';
+  document.getElementById('frow').classList.remove('show');
+  document.getElementById('cb').disabled = true;
+  document.getElementById('rsp').classList.remove('show');
+  TX = [];
+  IS_DEMO = false;
+}
+
+/* ═══════════════════════════════════════════
+   MIME TYPE MAP — file ext → MIME for API
+═══════════════════════════════════════════ */
+const MIME_MAP = {
+  pdf:  'application/pdf',
+  csv:  'text/csv',
+  xls:  'application/vnd.ms-excel',
+  xlsx: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+  jpg:  'image/jpeg',
+  jpeg: 'image/jpeg',
+  png:  'image/png',
+};
+
+/* ═══════════════════════════════════════════
+   PROGRESS BAR — animated feedback during API call
+═══════════════════════════════════════════ */
+let _pt = null;
+let _pVal = 0;
+
+function startProgress() {
+  const phases = [
+    { en: 'Uploading securely…',      fr: 'Upload sécurisé…',        end: 20, sid: 's1' },
+    { en: 'Reading your statement…',  fr: 'Lecture du relevé…',      end: 60, sid: 's2' },
+    { en: 'Structuring data…',        fr: 'Structuration…',          end: 88, sid: 's3' },
+    { en: 'Building preview…',        fr: 'Génération aperçu…',      end: 96, sid: 's4' },
+  ];
+  document.getElementById('pw').classList.add('show');
+  document.getElementById('rsp').classList.remove('show');
+  ['s1', 's2', 's3', 's4'].forEach(id => document.getElementById(id).className = 'ps');
+  _pVal = 0;
+  let ph = 0;
+
+  _pt = setInterval(() => {
+    const c = phases[ph];
+    const spd = ph < 1 ? 3 : ph < 2 ? 1.2 : 0.6;
+    _pVal = Math.min(_pVal + spd, c.end);
+    document.getElementById('pb').style.width = _pVal + '%';
+    document.getElementById('pp').textContent = Math.round(_pVal) + '%';
+    document.getElementById('pl').textContent = L === 'fr' ? c.fr : c.en;
+    document.getElementById(c.sid).className = 'ps act';
+    if (_pVal >= c.end && ph < phases.length - 1) {
+      document.getElementById(c.sid).className = 'ps dn';
+      ph++;
+    }
+  }, 70);
+}
+
+function finishProgress(success) {
+  clearInterval(_pt);
+  const bar = document.getElementById('pb');
+  bar.style.transition = 'width .3s ease';
+  bar.style.width = '100%';
+  ['s1', 's2', 's3', 's4'].forEach(id => {
+    document.getElementById(id).className = success ? 'ps dn' : 'ps';
+  });
+  setTimeout(() => {
+    document.getElementById('pw').classList.remove('show');
+    bar.style.width = '0';
+    bar.style.transition = '';
+  }, success ? 500 : 300);
+}
+
+/* ═══════════════════════════════════════════
+   CONVERT — real backend call (N1)
+   Falls back to demo data if backend unavailable.
+═══════════════════════════════════════════ */
+async function cv() {
+  if (!sf) return;
+
+  const btn = document.getElementById('cb');
+  btn.disabled = true;
+  IS_DEMO = false;
+  startProgress();
+
+  track('conversion_started', {
+    ext: sf.name.split('.').pop().toLowerCase(),
+    size_kb: Math.round(sf.size / 1024),
+  });
+
+  try {
+    // Read file as base64
+    const b64 = await fileToBase64(sf);
+    const ext  = sf.name.split('.').pop().toLowerCase();
+    const mime = MIME_MAP[ext] || 'application/octet-stream';
+
+    // Call backend
+    const resp = await fetch('/api/convert', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ file: b64, mimeType: mime, filename: sf.name }),
+    });
+
+    const data = await resp.json();
+
+    if (!resp.ok || !data.ok) {
+      throw { code: data.error, message: data.message };
+    }
+
+    // Store real transactions
+    TX = data.transactions;
+    IS_DEMO = false;
+
+    finishProgress(true);
+    setTimeout(() => {
+      bldTbl();
+      document.getElementById('txn-count').textContent =
+        '✓ ' + TX.length + (L === 'fr' ? ' transactions' : ' transactions');
+      document.getElementById('rsp').classList.add('show');
+      btn.disabled = false; // re-enable for a second conversion
+    }, 300);
+
+    track('conversion_success', { tx_count: TX.length });
+
+  } catch (err) {
+    finishProgress(false);
+    btn.disabled = false;
+
+    // Human-readable error messages
+    const errMessages = {
+      unsupported_format: L === 'fr'
+        ? 'Format non supporté. Essayez PDF, CSV, Excel, JPG ou PNG.'
+        : 'Unsupported format. Try PDF, CSV, Excel, JPG or PNG.',
+      file_too_large: L === 'fr'
+        ? 'Fichier trop lourd. Limite : 10 MB.'
+        : 'File too large. Limit: 10 MB.',
+      not_a_statement: L === 'fr'
+        ? "Ce fichier ne ressemble pas à un relevé bancaire."
+        : "This file doesn't look like a bank statement.",
+      unreadable: L === 'fr'
+        ? 'Fichier illisible ou corrompu. Essayez de l\'exporter à nouveau depuis votre banque.'
+        : 'Unreadable or corrupted file. Try re-exporting from your bank.',
+      no_transactions: L === 'fr'
+        ? 'Aucune transaction trouvée dans ce fichier.'
+        : 'No transactions found in this file.',
+      rate_limited: L === 'fr'
+        ? 'Trop de requêtes. Attendez quelques secondes et réessayez.'
+        : 'Too many requests. Wait a moment and try again.',
+    };
+
+    const msg = errMessages[err.code] || err.message || (L === 'fr'
+      ? 'Erreur inattendue. Réessayez ou contactez le support.'
+      : 'Unexpected error. Please try again or contact support.');
+
+    notif(msg, true);
+    track('conversion_error', { code: err.code || 'unknown' });
+  }
+}
+
+/* Helper — File to base64 string */
+function fileToBase64(file) {
+  return new Promise((resolve, reject) => {
+    const r = new FileReader();
+    r.onload  = () => resolve(r.result.split(',')[1]);
+    r.onerror = () => reject(new Error('File read failed'));
+    r.readAsDataURL(file);
+  });
+}
+
+/* ═══════════════════════════════════════════
+   TABLE — build preview from TX[]
+   All cells are contenteditable for inline editing.
+═══════════════════════════════════════════ */
+function bldTbl() {
+  const tb = document.getElementById('tb');
+  tb.innerHTML = '';
+  TX.forEach((t, i) => {
+    const amt = parseFloat(t.amount ?? t.amt) || 0;
+    const bal = t.balance ?? t.bal ?? null;
+    const pos = amt >= 0;
+    const tr  = document.createElement('tr');
+    tr.innerHTML = `
+      <td style="color:var(--light);font-family:var(--mono);font-size:10px">${i + 1}</td>
+      <td contenteditable="true">${esc(t.date || '')}</td>
+      <td contenteditable="true">${esc(t.description || t.desc || t.en || '')}</td>
+      <td class="${pos ? 'tpos' : 'tneg'}" contenteditable="true">${pos ? '+' : '−'}${Math.abs(amt).toFixed(2)}</td>
+      <td style="color:var(--mid);font-family:var(--mono);font-size:11px" contenteditable="true">${bal !== null ? Number(bal).toFixed(2) : '—'}</td>
+      <td><span class="tcat" contenteditable="true">${esc(t.category || t.cat || '')}</span></td>`;
+    tb.appendChild(tr);
+  });
+
+  // Toggle demo chip
+  const chip = document.getElementById('demo-chip');
+  if (chip) chip.style.display = IS_DEMO ? 'inline-flex' : 'none';
+}
+
+function esc(s) {
+  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+
+function getRows() {
+  return Array.from(document.querySelectorAll('#tb tr')).map(r => {
+    const c = r.querySelectorAll('td');
+    return {
+      num:     c[0]?.textContent.trim(),
+      date:    c[1]?.textContent.trim(),
+      desc:    c[2]?.textContent.trim(),
+      amount:  c[3]?.textContent.trim(),
+      balance: c[4]?.textContent.trim(),
+      cat:     c[5]?.textContent.trim(),
+    };
+  });
+}
+
+/* ═══════════════════════════════════════════
+   EXPORTS — N1: CSV  |  N2: real Excel .xlsx
+═══════════════════════════════════════════ */
+function dlCSV() {
+  const rows = getRows();
+  const sep  = L === 'fr' ? ';' : ',';
+  const hdr  = L === 'fr'
+    ? `Date${sep}Description${sep}Montant${sep}Solde${sep}Catégorie\n`
+    : `Date${sep}Description${sep}Amount${sep}Balance${sep}Category\n`;
+  const body = rows.map(r =>
+    `${r.date}${sep}"${(r.desc || '').replace(/"/g, '""')}"${sep}${r.amount}${sep}${r.balance}${sep}${r.cat}`
+  ).join('\n');
+  dl('\uFEFF' + hdr + body, L === 'fr' ? 'releve.csv' : 'statement.csv', 'text/csv;charset=utf-8');
+  notif(L === 'fr' ? '✓ CSV téléchargé' : '✓ CSV downloaded');
+  track('export_clicked', { format: 'csv', tx_count: getRows().length, is_demo: IS_DEMO });
+}
+
+function dlExcel() {
+  // Real .xlsx via SheetJS (N2)
+  if (typeof XLSX !== 'undefined') {
+    const rows  = getRows();
+    const wsData = [
+      L === 'fr'
+        ? ['Date', 'Description', 'Montant', 'Solde', 'Catégorie']
+        : ['Date', 'Description', 'Amount', 'Balance', 'Category'],
+      ...rows.map(r => [r.date, r.desc, r.amount, r.balance, r.cat]),
+    ];
+    const ws = XLSX.utils.aoa_to_sheet(wsData);
+    // Column widths
+    ws['!cols'] = [{ wch: 12 }, { wch: 40 }, { wch: 12 }, { wch: 14 }, { wch: 16 }];
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, 'Transactions');
+    XLSX.writeFile(wb, L === 'fr' ? 'releve.xlsx' : 'statement.xlsx');
+    notif(L === 'fr' ? '✓ Excel téléchargé' : '✓ Excel downloaded');
+  } else {
+    // Fallback — TSV-as-xlsx (SheetJS failed to load)
+    const rows = getRows();
+    const hdr  = L === 'fr' ? 'Date\tDescription\tMontant\tSolde\tCatégorie\n' : 'Date\tDescription\tAmount\tBalance\tCategory\n';
+    const body = rows.map(r => `${r.date}\t${r.desc}\t${r.amount}\t${r.balance}\t${r.cat}`).join('\n');
+    dl('\uFEFF' + hdr + body, L === 'fr' ? 'releve.xlsx' : 'statement.xlsx', 'application/vnd.ms-excel');
+    notif(L === 'fr' ? '✓ Excel téléchargé' : '✓ Excel downloaded');
+  }
+  track('export_clicked', { format: 'xlsx', tx_count: getRows().length, is_demo: IS_DEMO });
+}
+
+function dlJSON() {
+  const data = {
+    exported_at: new Date().toISOString(),
+    source: 'StatementConvert',
+    is_demo: IS_DEMO,
+    transactions: getRows().map(r => ({
+      date: r.date,
+      description: r.desc,
+      amount: r.amount,
+      balance: r.balance,
+      category: r.cat,
+    })),
+  };
+  dl(JSON.stringify(data, null, 2), L === 'fr' ? 'releve.json' : 'statement.json', 'application/json');
+  notif(L === 'fr' ? '✓ JSON téléchargé' : '✓ JSON downloaded');
+  track('export_clicked', { format: 'json', tx_count: getRows().length, is_demo: IS_DEMO });
+}
+
+function dlOFX() {
+  const rows = getRows();
+  const now  = new Date().toISOString().replace(/[-:T.]/g, '').slice(0, 14);
+  const stmts = rows.map((r, i) =>
+    `<STMTTRN><TRNTYPE>${r.amount.startsWith('+') ? 'CREDIT' : 'DEBIT'}<DTPOSTED>${now}<TRNAMT>${r.amount.replace(/[^0-9.\-]/g, '')}<FITID>${i + 1}<MEMO>${r.desc}</STMTTRN>`
+  ).join('\n');
+  const ofx = `OFXHEADER:100\nDATA:OFXSGML\nVERSION:102\n\n<OFX><BANKMSGSRSV1><STMTTRNRS><STMTRS><CURDEF>EUR<BANKTRANLIST>\n${stmts}\n</BANKTRANLIST></STMTRS></STMTTRNRS></BANKMSGSRSV1></OFX>`;
+  dl(ofx, L === 'fr' ? 'releve.ofx' : 'statement.ofx', 'application/x-ofx');
+  notif(L === 'fr' ? '✓ OFX téléchargé' : '✓ OFX downloaded');
+  track('export_clicked', { format: 'ofx', tx_count: getRows().length, is_demo: IS_DEMO });
+}
+
+/* ═══════════════════════════════════════════
+   HELPERS
+═══════════════════════════════════════════ */
+function dl(content, filename, mime) {
+  const blob = new Blob([content], { type: mime });
+  const url  = URL.createObjectURL(blob);
+  const a    = document.createElement('a');
+  a.href = url; a.download = filename;
+  document.body.appendChild(a); a.click();
+  document.body.removeChild(a);
+  setTimeout(() => URL.revokeObjectURL(url), 1000);
+}
+
+function notif(msg, err = false) {
+  // Remove any existing notif
+  document.querySelectorAll('.notif').forEach(n => n.remove());
+  const n = document.createElement('div');
+  n.className = 'notif ' + (err ? 'notif-err' : 'notif-ok');
+  n.textContent = msg;
+  document.body.appendChild(n);
+  // Allow clicking to dismiss early
+  n.addEventListener('click', () => n.remove());
+  setTimeout(() => n.remove(), err ? 6000 : 3000);
+}
+
+/* ═══════════════════════════════════════════
+   INIT
+═══════════════════════════════════════════ */
+const params = new URLSearchParams(window.location.search);
+if (params.get('payment') === 'success') {
+  notif(L === 'fr' ? '✓ Paiement réussi — bienvenue !' : '✓ Payment successful — welcome!');
+  track('payment_success');
+}
+</script>
+
+<!-- Stripe — loaded separately, only needed for checkout -->
+<script src="https://js.stripe.com/v3/" defer></script>
+<script defer>
+window.addEventListener('load', () => {
+  if (typeof Stripe === 'undefined') return;
+  const stripe = Stripe('pk_live_51SrwNIRqpJ66wdpMxX7KH7Y4lN0oOw94KMurfqmNElLcahXbx41LUwOqRcCM1omczQQenz5Ro3w8ZuFmvd9ZtGJs00yfRJBePg');
+  window.stripeCheckout = async function (priceId) {
+    if (priceId === 'price_STARTER' || priceId === 'price_TEAM') {
+      notif(L === 'fr'
+        ? 'Ce plan sera bientôt disponible — contactez-nous !'
+        : 'This plan is coming soon — contact us!');
+      track('pricing_plan_unavailable', { plan: priceId });
+      return;
+    }
+    const btn  = event.currentTarget;
+    const orig = btn.innerHTML;
+    btn.textContent = L === 'fr' ? 'Redirection…' : 'Redirecting…';
+    btn.disabled = true;
+    track('checkout_started', { price_id: priceId });
+    try {
+      const { error } = await stripe.redirectToCheckout({
+        lineItems: [{ price: priceId, quantity: 1 }],
+        mode: 'subscription',
+        successUrl: window.location.origin + '?payment=success',
+        cancelUrl: window.location.href,
+      });
+      if (error) { notif(error.message, true); btn.innerHTML = orig; btn.disabled = false; }
+    } catch (e) {
+      notif(L === 'fr' ? 'Erreur — réessayez' : 'Error — please try again', true);
+      btn.innerHTML = orig; btn.disabled = false;
+    }
+  };
+});
+</script>
+</body>
+</html>
