@@ -1327,13 +1327,7 @@ window.addEventListener('load', () => {
   if (typeof Stripe === 'undefined') return;
   const stripe = Stripe('pk_live_51SrwNIRqpJ66wdpMxX7KH7Y4lN0oOw94KMurfqmNElLcahXbx41LUwOqRcCM1omczQQenz5Ro3w8ZuFmvd9ZtGJs00yfRJBePg');
   window.stripeCheckout = async function (priceId) {
-    if (priceId === 'price_STARTER' || priceId === 'price_TEAM') {
-      notif(L === 'fr'
-        ? 'Ce plan sera bientôt disponible — contactez-nous !'
-        : 'This plan is coming soon — contact us!');
-      track('pricing_plan_unavailable', { plan: priceId });
-      return;
-    }
+   
     const btn  = event.currentTarget;
     const orig = btn.innerHTML;
     btn.textContent = L === 'fr' ? 'Redirection…' : 'Redirecting…';
