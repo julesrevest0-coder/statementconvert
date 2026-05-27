@@ -1334,12 +1334,15 @@ window.addEventListener('load', () => {
     btn.disabled = true;
     track('checkout_started', { price_id: priceId });
     try {
-      const { error } = await stripe.redirectToCheckout({
-        lineItems: [{ price: priceId, quantity: 1 }],
-        mode: 'subscription',
-        successUrl: window.location.origin + '?payment=success',
-        cancelUrl: window.location.href,
+      const resp = await fetch('https://statementconvert-backend.onrender.com/create-checkout-session', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ priceId })
       });
+      const { url } = await resp.json();
+      window.location.href = url;
+      return;
+      const { error } = { error: null };
       if (error) { notif(error.message, true); btn.innerHTML = orig; btn.disabled = false; }
     } catch (e) {
       notif(L === 'fr' ? 'Erreur — réessayez' : 'Error — please try again', true);
