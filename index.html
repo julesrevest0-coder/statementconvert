@@ -1093,7 +1093,7 @@ async function cv() {
     const mime = MIME_MAP[ext] || 'application/octet-stream';
 
     // Call backend
-    const resp = await fetch('/api/convert', {
+    const resp = await fetch('https://statementconvert-backend.onrender.com/convert', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ file: b64, mimeType: mime, filename: sf.name }),
