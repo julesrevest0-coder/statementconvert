@@ -618,7 +618,7 @@ td[contenteditable]:focus{outline:none;background:var(--blue-l)}
         <li data-en="Preview & inline editing" data-fr="Aperçu & édition">Preview & inline editing</li>
         <li data-en="30-day conversion history" data-fr="Historique 30 jours">30-day conversion history</li>
       </ul>
-      <button class="pbtn" onclick="stripeCheckout('price_1TYrZsRqpJ66wdpMJDMCgeiQ')" data-en="Start with Starter" data-fr="Commencer avec Starter">Start with Starter</button>
+      <button class="pbtn" onclick="stripeCheckout('price_STARTER')" data-en="Start with Starter" data-fr="Commencer avec Starter">Start with Starter</button>
     </div>
 
     <!-- PRO -->
@@ -635,7 +635,7 @@ td[contenteditable]:focus{outline:none;background:var(--blue-l)}
         <li data-en="Priority processing" data-fr="Traitement prioritaire">Priority processing</li>
         <li data-en="Email support" data-fr="Support par email">Email support</li>
       </ul>
-      <button class="pbtn pri" onclick="stripeCheckout('price_1TYra7RqpJ66wdpMKiwUQGaP')" data-en="Start with Pro" data-fr="Commencer avec Pro">Start with Pro</button>
+      <button class="pbtn pri" onclick="stripeCheckout('price_1TQkQIRqpJ66wdpMGLD9KeVX')" data-en="Start with Pro" data-fr="Commencer avec Pro">Start with Pro</button>
     </div>
 
     <!-- TEAM -->
@@ -651,7 +651,7 @@ td[contenteditable]:focus{outline:none;background:var(--blue-l)}
         <li data-en="Priority support" data-fr="Support prioritaire">Priority support</li>
         <li data-en="Early access to new features" data-fr="Accès anticipé aux nouveautés">Early access to new features</li>
       </ul>
-      <button class="pbtn" onclick="stripeCheckout('price_1TbyW8RqpJ66wdpM49nUW5xH')" data-en="Start with Team" data-fr="Commencer avec Team">Start with Team</button>
+      <button class="pbtn" onclick="stripeCheckout('price_TEAM')" data-en="Start with Team" data-fr="Commencer avec Team">Start with Team</button>
     </div>
   </div>
 
@@ -720,11 +720,11 @@ td[contenteditable]:focus{outline:none;background:var(--blue-l)}
     </div>
     <div class="ft-r">
       <div class="ft-links">
-        <a href="/privacy.html" data-en="Privacy Policy" data-fr="Confidentialité">Privacy Policy</a>
-        <a href="/terms.html" data-en="Terms of Service" data-fr="CGU">Terms of Service</a>
+        <a href="#" data-en="Privacy Policy" data-fr="Confidentialité">Privacy Policy</a>
+        <a href="#" data-en="Terms of Service" data-fr="CGU">Terms of Service</a>
         <a href="mailto:hello@statementconvert.app">Contact</a>
       </div>
-      <div class="ft-copy" data-en="© 2026 StatementConvert" data-fr="© 2026 StatementConvert">© 2026 StatementConvert</div>
+      <div class="ft-copy" data-en="© 2025 StatementConvert" data-fr="© 2025 StatementConvert">© 2025 StatementConvert</div>
     </div>
   </div>
 </footer>
@@ -791,7 +791,7 @@ td[contenteditable]:focus{outline:none;background:var(--blue-l)}
   <div class="rsp" id="rsp">
     <div class="rchips">
       <span class="rch rg" id="txn-count">✓ 8 transactions</span>
-      <span class="rch rb" id="demo-chip" style="display:none" data-en="Sample data — upload your own file above" data-fr="Données d'exemple — importez votre propre fichier">Sample data — upload your own file above</span>
+      <span class="rch rb" data-en="Demo data — connect backend to parse real files" data-fr="Données de démo — connectez le backend pour de vrais fichiers">Demo data</span>
     </div>
     <div class="ep">
       <div class="ep-t" data-en="Download your data" data-fr="Téléchargez vos données">Download your data</div>
@@ -818,535 +818,219 @@ td[contenteditable]:focus{outline:none;background:var(--blue-l)}
 </div>
 </div>
 
-<!-- SheetJS for real .xlsx export (N2) -->
-<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
-
 <script>
-'use strict';
-
-/* ═══════════════════════════════════════════
-   STATE
-═══════════════════════════════════════════ */
-let L = 'en';         // active language
-let sf = null;        // selected File object
-let TX = [];          // extracted transactions (real or demo fallback)
-let IS_DEMO = false;  // true when showing demo data, not real extraction
-
-/* ═══════════════════════════════════════════
-   TRACKING — N1
-   Lightweight, no external dependency.
-   Sends events to a /api/track endpoint if it
-   exists; falls back to console gracefully.
-   Easy to swap for Plausible / Posthog later.
-═══════════════════════════════════════════ */
-function track(event, props = {}) {
-  const payload = {
-    event,
-    props: { lang: L, ...props },
-    url: window.location.pathname,
-    ts: Date.now(),
-  };
-  // Fire-and-forget — never block UX on analytics
-  if (typeof navigator.sendBeacon === 'function') {
-    navigator.sendBeacon('/api/track', JSON.stringify(payload));
-  }
-  // Always log in dev for visibility
-  console.log('[track]', event, payload.props);
-}
-
-// Track initial page view
-track('page_view');
-
-/* ═══════════════════════════════════════════
-   I18N — minimal two-language support
-═══════════════════════════════════════════ */
-function sl(l) {
-  L = l;
-  document.getElementById('ben').classList.toggle('on', l === 'en');
-  document.getElementById('bfr').classList.toggle('on', l === 'fr');
-  document.querySelectorAll('[data-en]').forEach(el => {
-    const v = el.getAttribute('data-' + l);
-    if (v !== null) el.innerHTML = v;
-  });
-  document.documentElement.lang = l;
-  const ls = document.getElementById('ls');
-  if (ls && ls.value !== l) ls.value = l;
-}
-
-/* ═══════════════════════════════════════════
-   NAVIGATION — single-page show/hide
-═══════════════════════════════════════════ */
-function pg(id) {
-  document.getElementById('land').style.display = id === 'land' ? 'block' : 'none';
-  document.getElementById('up').style.display   = id === 'up'   ? 'block' : 'none';
-  window.scrollTo({ top: 0, behavior: 'smooth' });
-  if (id === 'up') track('cta_click', { destination: 'upload_page' });
-}
-
-function sc(id) {
-  const el = document.getElementById(id);
-  if (el) { pg('land'); setTimeout(() => el.scrollIntoView({ behavior: 'smooth' }), 60); }
-  if (id === 'pricing') track('pricing_viewed');
-}
-
-function faq(btn) { btn.parentElement.classList.toggle('open'); }
-
-/* ═══════════════════════════════════════════
-   SCROLL REVEAL
-═══════════════════════════════════════════ */
-const obs = new IntersectionObserver(entries => {
-  entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('in'); });
-}, { threshold: 0.08 });
-document.querySelectorAll('.reveal').forEach(el => obs.observe(el));
-
-/* ═══════════════════════════════════════════
-   LANDING DEMO — interactive demo widget
-   Uses fixed demo data, clearly labelled.
-═══════════════════════════════════════════ */
-const DEMO_DATA = [
-  { date: 'Mar 01', desc: 'Netflix', amt: -15.99, cat: 'Sub' },
-  { date: 'Mar 03', desc: 'Salary deposit', amt: 4200, cat: 'Income' },
-  { date: 'Mar 05', desc: 'Whole Foods', amt: -87.42, cat: 'Groceries' },
-  { date: 'Mar 07', desc: 'Uber', amt: -22.10, cat: 'Transport' },
-  { date: 'Mar 09', desc: 'Freelance payment', amt: 850, cat: 'Income' },
-  { date: 'Mar 11', desc: 'Amazon Prime', amt: -14.99, cat: 'Sub' },
-  { date: 'Mar 15', desc: 'Apple iCloud', amt: -2.99, cat: 'Sub' },
-  { date: 'Mar 18', desc: 'Dentist', amt: -150, cat: 'Health' },
+const TX=[
+  {date:"Mar 01",en:"Netflix Subscription",fr:"Abonnement Netflix",amt:-15.99,bal:4284.01,cat:"Subscriptions",catFr:"Abonnements"},
+  {date:"Mar 03",en:"Salary Deposit",fr:"Virement salaire",amt:4200,bal:8484.01,cat:"Income",catFr:"Revenus"},
+  {date:"Mar 05",en:"Whole Foods",fr:"Whole Foods",amt:-87.42,bal:8396.59,cat:"Groceries",catFr:"Alimentation"},
+  {date:"Mar 07",en:"Uber",fr:"Uber",amt:-22.10,bal:8374.49,cat:"Transport",catFr:"Transport"},
+  {date:"Mar 09",en:"Freelance Payment",fr:"Paiement freelance",amt:850,bal:9224.49,cat:"Income",catFr:"Revenus"},
+  {date:"Mar 11",en:"Amazon Prime",fr:"Amazon Prime",amt:-14.99,bal:9209.50,cat:"Subscriptions",catFr:"Abonnements"},
+  {date:"Mar 15",en:"Apple iCloud",fr:"Apple iCloud",amt:-2.99,bal:9206.51,cat:"Subscriptions",catFr:"Abonnements"},
+  {date:"Mar 18",en:"Dentist",fr:"Dentiste",amt:-150,bal:9056.51,cat:"Health",catFr:"Santé"},
 ];
+let L='en',sf=null,pt=null;
 
-function runDemo() {
-  const drop   = document.getElementById('demo-drop');
-  const proc   = document.getElementById('demo-proc');
-  const status = document.getElementById('demo-status');
-  const tbody  = document.getElementById('demo-body');
-  drop.style.display = 'none';
-  proc.style.display = 'flex';
-  tbody.innerHTML = '';
-  status.style.visibility = 'hidden';
-  track('demo_started');
+function sl(l){
+  L=l;
+  document.getElementById('ben').classList.toggle('on',l==='en');
+  document.getElementById('bfr').classList.toggle('on',l==='fr');
+  document.querySelectorAll('[data-en]').forEach(el=>{
+    const v=el.getAttribute('data-'+l);
+    if(v!==null)el.innerHTML=v;
+  });
+  document.documentElement.lang=l;
+  const ls=document.getElementById('ls');
+  if(ls&&ls.value!==l)ls.value=l;
+}
+function pg(id){
+  document.getElementById('land').style.display=id==='land'?'block':'none';
+  document.getElementById('up').style.display=id==='up'?'block':'none';
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+function sc(id){
+  const el=document.getElementById(id);
+  if(el){pg('land');setTimeout(()=>el.scrollIntoView({behavior:'smooth'}),60);}
+}
+function faq(btn){btn.parentElement.classList.toggle('open')}
 
-  setTimeout(() => {
-    proc.style.display = 'none';
-    drop.style.display = 'flex';
-    DEMO_DATA.forEach((t, i) => {
-      setTimeout(() => {
-        const pos = t.amt >= 0;
-        const tr  = document.createElement('tr');
-        tr.style.animation = 'fadeUp .25s ease both';
-        tr.innerHTML = `<td>${t.date}</td><td>${t.desc}</td><td class="${pos ? 't-pos' : 't-neg'}">${pos ? '+' : '−'}$${Math.abs(t.amt).toFixed(2)}</td><td><span class="cat-tag">${t.cat}</span></td>`;
+const obs=new IntersectionObserver(entries=>{
+  entries.forEach(e=>{if(e.isIntersecting)e.target.classList.add('in')});
+},{threshold:.08});
+document.querySelectorAll('.reveal').forEach(el=>obs.observe(el));
+
+const DEMO=[
+  {date:"Mar 01",desc:"Netflix",amt:-15.99,cat:"Sub"},
+  {date:"Mar 03",desc:"Salary",amt:4200,cat:"Income"},
+  {date:"Mar 05",desc:"Whole Foods",amt:-87.42,cat:"Food"},
+  {date:"Mar 07",desc:"Uber",amt:-22.10,cat:"Transport"},
+  {date:"Mar 09",desc:"Freelance",amt:850,cat:"Income"},
+  {date:"Mar 11",desc:"Amazon Prime",amt:-14.99,cat:"Sub"},
+  {date:"Mar 15",desc:"iCloud",amt:-2.99,cat:"Sub"},
+  {date:"Mar 18",desc:"Dentist",amt:-150,cat:"Health"},
+];
+function runDemo(){
+  const drop=document.getElementById('demo-drop');
+  const proc=document.getElementById('demo-proc');
+  const status=document.getElementById('demo-status');
+  const tbody=document.getElementById('demo-body');
+  drop.style.display='none';proc.style.display='flex';
+  tbody.innerHTML='';status.style.visibility='hidden';
+  setTimeout(()=>{
+    proc.style.display='none';drop.style.display='flex';
+    DEMO.forEach((t,i)=>{
+      setTimeout(()=>{
+        const pos=t.amt>=0;
+        const tr=document.createElement('tr');
+        tr.style.animation='fadeUp .25s ease both';
+        tr.innerHTML=`<td>${t.date}</td><td>${t.desc}</td><td class="${pos?'t-pos':'t-neg'}">${pos?'+':'−'}$${Math.abs(t.amt).toFixed(2)}</td><td><span class="cat-tag">${t.cat}</span></td>`;
         tbody.appendChild(tr);
-        if (i === DEMO_DATA.length - 1) {
-          status.style.visibility = 'visible';
-          track('demo_completed');
-        }
-      }, i * 110);
+        if(i===DEMO.length-1)status.style.visibility='visible';
+      },i*110);
     });
-  }, 1600);
+  },1600);
 }
 
-/* ═══════════════════════════════════════════
-   UPLOAD PAGE — file selection & drag-drop
-═══════════════════════════════════════════ */
-const dz = document.getElementById('dz');
-if (dz) {
-  dz.addEventListener('dragover', e => { e.preventDefault(); dz.classList.add('ov'); });
-  dz.addEventListener('dragleave', () => dz.classList.remove('ov'));
-  dz.addEventListener('drop', e => {
-    e.preventDefault();
-    dz.classList.remove('ov');
-    const f = e.dataTransfer.files[0];
-    if (f) {
-      const dt = new DataTransfer();
-      dt.items.add(f);
-      document.getElementById('fi').files = dt.files;
-      onF(document.getElementById('fi'));
-    }
+const dz=document.getElementById('dz');
+if(dz){
+  dz.addEventListener('dragover',e=>{e.preventDefault();dz.classList.add('ov')});
+  dz.addEventListener('dragleave',()=>dz.classList.remove('ov'));
+  dz.addEventListener('drop',e=>{
+    e.preventDefault();dz.classList.remove('ov');
+    const f=e.dataTransfer.files[0];
+    if(f){const dt=new DataTransfer();dt.items.add(f);document.getElementById('fi').files=dt.files;onF(document.getElementById('fi'));}
   });
 }
-
-const ALLOWED_EXTS = ['.pdf', '.csv', '.xlsx', '.xls', '.jpg', '.jpeg', '.png'];
-const MAX_MB = 10;
-
-function onF(inp) {
-  const f = inp.files[0];
-  if (!f) return;
-
-  // Client-side format check
-  const ext = '.' + f.name.split('.').pop().toLowerCase();
-  if (!ALLOWED_EXTS.includes(ext)) {
-    notif(L === 'fr'
-      ? `Format non supporté : ${ext}. Utilisez PDF, CSV, Excel, JPG ou PNG.`
-      : `Unsupported format: ${ext}. Use PDF, CSV, Excel, JPG or PNG.`, true);
-    return;
-  }
-
-  // Client-side size check
-  if (f.size > MAX_MB * 1024 * 1024) {
-    notif(L === 'fr'
-      ? `Fichier trop lourd (max ${MAX_MB} MB).`
-      : `File too large (max ${MAX_MB} MB).`, true);
-    return;
-  }
-
-  sf = f;
-  document.getElementById('fn').textContent = f.name;
-  document.getElementById('fs').textContent = (f.size / 1024 / 1024).toFixed(2) + ' MB';
+function onF(inp){
+  const f=inp.files[0];if(!f)return;sf=f;
+  document.getElementById('fn').textContent=f.name;
+  document.getElementById('fs').textContent=(f.size/1024/1024).toFixed(2)+' MB';
   document.getElementById('frow').classList.add('show');
-  document.getElementById('cb').disabled = false;
-
-  track('file_selected', { ext, size_kb: Math.round(f.size / 1024) });
+  document.getElementById('cb').disabled=false;
 }
-
-function cf() {
-  sf = null;
-  document.getElementById('fi').value = '';
+function cf(){
+  sf=null;document.getElementById('fi').value='';
   document.getElementById('frow').classList.remove('show');
-  document.getElementById('cb').disabled = true;
+  document.getElementById('cb').disabled=true;
   document.getElementById('rsp').classList.remove('show');
-  TX = [];
-  IS_DEMO = false;
 }
-
-/* ═══════════════════════════════════════════
-   MIME TYPE MAP — file ext → MIME for API
-═══════════════════════════════════════════ */
-const MIME_MAP = {
-  pdf:  'application/pdf',
-  csv:  'text/csv',
-  xls:  'application/vnd.ms-excel',
-  xlsx: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
-  jpg:  'image/jpeg',
-  jpeg: 'image/jpeg',
-  png:  'image/png',
-};
-
-/* ═══════════════════════════════════════════
-   PROGRESS BAR — animated feedback during API call
-═══════════════════════════════════════════ */
-let _pt = null;
-let _pVal = 0;
-
-function startProgress() {
-  const phases = [
-    { en: 'Uploading securely…',      fr: 'Upload sécurisé…',        end: 20, sid: 's1' },
-    { en: 'Reading your statement…',  fr: 'Lecture du relevé…',      end: 60, sid: 's2' },
-    { en: 'Structuring data…',        fr: 'Structuration…',          end: 88, sid: 's3' },
-    { en: 'Building preview…',        fr: 'Génération aperçu…',      end: 96, sid: 's4' },
-  ];
+function cv(){
   document.getElementById('pw').classList.add('show');
   document.getElementById('rsp').classList.remove('show');
-  ['s1', 's2', 's3', 's4'].forEach(id => document.getElementById(id).className = 'ps');
-  _pVal = 0;
-  let ph = 0;
-
-  _pt = setInterval(() => {
-    const c = phases[ph];
-    const spd = ph < 1 ? 3 : ph < 2 ? 1.2 : 0.6;
-    _pVal = Math.min(_pVal + spd, c.end);
-    document.getElementById('pb').style.width = _pVal + '%';
-    document.getElementById('pp').textContent = Math.round(_pVal) + '%';
-    document.getElementById('pl').textContent = L === 'fr' ? c.fr : c.en;
-    document.getElementById(c.sid).className = 'ps act';
-    if (_pVal >= c.end && ph < phases.length - 1) {
-      document.getElementById(c.sid).className = 'ps dn';
-      ph++;
+  ['s1','s2','s3','s4'].forEach(id=>document.getElementById(id).className='ps');
+  let p=0,ph=0;
+  const PH=[
+    {en:'Uploading securely...',fr:'Upload sécurisé...',end:22,sid:'s1'},
+    {en:'AI reading statement...',fr:"L'IA lit votre relevé...",end:65,sid:'s2'},
+    {en:'Structuring data...',fr:'Structuration...',end:88,sid:'s3'},
+    {en:'Building preview...',fr:'Génération aperçu...',end:97,sid:'s4'},
+  ];
+  pt=setInterval(()=>{
+    const c=PH[ph];
+    const spd=ph<1?3:ph<2?1.5:.7;
+    p=Math.min(p+spd,c.end);
+    document.getElementById('pb').style.width=p+'%';
+    document.getElementById('pp').textContent=Math.round(p)+'%';
+    document.getElementById('pl').textContent=L==='fr'?c.fr:c.en;
+    document.getElementById(c.sid).className='ps act';
+    if(p>=c.end&&ph<PH.length-1){document.getElementById(c.sid).className='ps dn';ph++;}
+    if(p>=97){
+      clearInterval(pt);
+      document.getElementById('pb').style.width='100%';
+      ['s1','s2','s3','s4'].forEach(id=>document.getElementById(id).className='ps dn');
+      setTimeout(()=>{
+        document.getElementById('pw').classList.remove('show');
+        bldTbl();
+        document.getElementById('txn-count').textContent='✓ '+TX.length+' transactions';
+        document.getElementById('rsp').classList.add('show');
+      },400);
     }
-  }, 70);
+  },70);
 }
-
-function finishProgress(success) {
-  clearInterval(_pt);
-  const bar = document.getElementById('pb');
-  bar.style.transition = 'width .3s ease';
-  bar.style.width = '100%';
-  ['s1', 's2', 's3', 's4'].forEach(id => {
-    document.getElementById(id).className = success ? 'ps dn' : 'ps';
-  });
-  setTimeout(() => {
-    document.getElementById('pw').classList.remove('show');
-    bar.style.width = '0';
-    bar.style.transition = '';
-  }, success ? 500 : 300);
-}
-
-/* ═══════════════════════════════════════════
-   CONVERT — real backend call (N1)
-   Falls back to demo data if backend unavailable.
-═══════════════════════════════════════════ */
-async function cv() {
-  if (!sf) return;
-
-  const btn = document.getElementById('cb');
-  btn.disabled = true;
-  IS_DEMO = false;
-  startProgress();
-
-  track('conversion_started', {
-    ext: sf.name.split('.').pop().toLowerCase(),
-    size_kb: Math.round(sf.size / 1024),
-  });
-
-  try {
-    // Read file as base64
-    const b64 = await fileToBase64(sf);
-    const ext  = sf.name.split('.').pop().toLowerCase();
-    const mime = MIME_MAP[ext] || 'application/octet-stream';
-
-    // Call backend
-    const resp = await fetch('https://statementconvert-backend.onrender.com/convert', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ file: b64, mimeType: mime, filename: sf.name }),
-    });
-
-    const data = await resp.json();
-
-    if (!resp.ok || !data.ok) {
-      throw { code: data.error, message: data.message };
-    }
-
-    // Store real transactions
-    TX = data.transactions;
-    IS_DEMO = false;
-
-    finishProgress(true);
-    setTimeout(() => {
-      bldTbl();
-      document.getElementById('txn-count').textContent =
-        '✓ ' + TX.length + (L === 'fr' ? ' transactions' : ' transactions');
-      document.getElementById('rsp').classList.add('show');
-      btn.disabled = false; // re-enable for a second conversion
-    }, 300);
-
-    track('conversion_success', { tx_count: TX.length });
-
-  } catch (err) {
-    finishProgress(false);
-    btn.disabled = false;
-
-    // Human-readable error messages
-    const errMessages = {
-      unsupported_format: L === 'fr'
-        ? 'Format non supporté. Essayez PDF, CSV, Excel, JPG ou PNG.'
-        : 'Unsupported format. Try PDF, CSV, Excel, JPG or PNG.',
-      file_too_large: L === 'fr'
-        ? 'Fichier trop lourd. Limite : 10 MB.'
-        : 'File too large. Limit: 10 MB.',
-      not_a_statement: L === 'fr'
-        ? "Ce fichier ne ressemble pas à un relevé bancaire."
-        : "This file doesn't look like a bank statement.",
-      unreadable: L === 'fr'
-        ? 'Fichier illisible ou corrompu. Essayez de l\'exporter à nouveau depuis votre banque.'
-        : 'Unreadable or corrupted file. Try re-exporting from your bank.',
-      no_transactions: L === 'fr'
-        ? 'Aucune transaction trouvée dans ce fichier.'
-        : 'No transactions found in this file.',
-      rate_limited: L === 'fr'
-        ? 'Trop de requêtes. Attendez quelques secondes et réessayez.'
-        : 'Too many requests. Wait a moment and try again.',
-    };
-
-    const msg = errMessages[err.code] || err.message || (L === 'fr'
-      ? 'Erreur inattendue. Réessayez ou contactez le support.'
-      : 'Unexpected error. Please try again or contact support.');
-
-    notif(msg, true);
-    track('conversion_error', { code: err.code || 'unknown' });
-  }
-}
-
-/* Helper — File to base64 string */
-function fileToBase64(file) {
-  return new Promise((resolve, reject) => {
-    const r = new FileReader();
-    r.onload  = () => resolve(r.result.split(',')[1]);
-    r.onerror = () => reject(new Error('File read failed'));
-    r.readAsDataURL(file);
-  });
-}
-
-/* ═══════════════════════════════════════════
-   TABLE — build preview from TX[]
-   All cells are contenteditable for inline editing.
-═══════════════════════════════════════════ */
-function bldTbl() {
-  const tb = document.getElementById('tb');
-  tb.innerHTML = '';
-  TX.forEach((t, i) => {
-    const amt = parseFloat(t.amount ?? t.amt) || 0;
-    const bal = t.balance ?? t.bal ?? null;
-    const pos = amt >= 0;
-    const tr  = document.createElement('tr');
-    tr.innerHTML = `
-      <td style="color:var(--light);font-family:var(--mono);font-size:10px">${i + 1}</td>
-      <td contenteditable="true">${esc(t.date || '')}</td>
-      <td contenteditable="true">${esc(t.description || t.desc || t.en || '')}</td>
-      <td class="${pos ? 'tpos' : 'tneg'}" contenteditable="true">${pos ? '+' : '−'}${Math.abs(amt).toFixed(2)}</td>
-      <td style="color:var(--mid);font-family:var(--mono);font-size:11px" contenteditable="true">${bal !== null ? Number(bal).toFixed(2) : '—'}</td>
-      <td><span class="tcat" contenteditable="true">${esc(t.category || t.cat || '')}</span></td>`;
+function bldTbl(){
+  const tb=document.getElementById('tb');tb.innerHTML='';
+  TX.forEach((t,i)=>{
+    const pos=t.amt>=0;
+    const tr=document.createElement('tr');
+    tr.innerHTML=`<td style="color:var(--light);font-family:var(--mono);font-size:10px">${i+1}</td><td>${t.date}</td><td contenteditable="true">${L==='fr'?t.fr:t.en}</td><td class="${pos?'tpos':'tneg'}">${pos?'+':'−'}$${Math.abs(t.amt).toFixed(2)}</td><td style="color:var(--mid);font-family:var(--mono);font-size:11px">$${t.bal.toFixed(2)}</td><td><span class="tcat">${L==='fr'?t.catFr:t.cat}</span></td>`;
     tb.appendChild(tr);
   });
-
-  // Toggle demo chip
-  const chip = document.getElementById('demo-chip');
-  if (chip) chip.style.display = IS_DEMO ? 'inline-flex' : 'none';
 }
-
-function esc(s) {
-  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
-}
-
-function getRows() {
-  return Array.from(document.querySelectorAll('#tb tr')).map(r => {
-    const c = r.querySelectorAll('td');
-    return {
-      num:     c[0]?.textContent.trim(),
-      date:    c[1]?.textContent.trim(),
-      desc:    c[2]?.textContent.trim(),
-      amount:  c[3]?.textContent.trim(),
-      balance: c[4]?.textContent.trim(),
-      cat:     c[5]?.textContent.trim(),
-    };
+function getRows(){
+  return Array.from(document.querySelectorAll('#tb tr')).map(r=>{
+    const c=r.querySelectorAll('td');
+    return{num:c[0]?.textContent.trim(),date:c[1]?.textContent.trim(),desc:c[2]?.textContent.trim(),amount:c[3]?.textContent.trim(),balance:c[4]?.textContent.trim(),cat:c[5]?.textContent.trim()};
   });
 }
-
-/* ═══════════════════════════════════════════
-   EXPORTS — N1: CSV  |  N2: real Excel .xlsx
-═══════════════════════════════════════════ */
-function dlCSV() {
-  const rows = getRows();
-  const sep  = L === 'fr' ? ';' : ',';
-  const hdr  = L === 'fr'
-    ? `Date${sep}Description${sep}Montant${sep}Solde${sep}Catégorie\n`
-    : `Date${sep}Description${sep}Amount${sep}Balance${sep}Category\n`;
-  const body = rows.map(r =>
-    `${r.date}${sep}"${(r.desc || '').replace(/"/g, '""')}"${sep}${r.amount}${sep}${r.balance}${sep}${r.cat}`
-  ).join('\n');
-  dl('\uFEFF' + hdr + body, L === 'fr' ? 'releve.csv' : 'statement.csv', 'text/csv;charset=utf-8');
-  notif(L === 'fr' ? '✓ CSV téléchargé' : '✓ CSV downloaded');
-  track('export_clicked', { format: 'csv', tx_count: getRows().length, is_demo: IS_DEMO });
+function dlCSV(){
+  const rows=getRows(),sep=L==='fr'?';':',';
+  const hdr=L==='fr'?`Date${sep}Description${sep}Montant${sep}Solde${sep}Catégorie\n`:`Date${sep}Description${sep}Amount${sep}Balance${sep}Category\n`;
+  const body=rows.map(r=>`${r.date}${sep}"${(r.desc||'').replace(/"/g,'""')}"${sep}${r.amount}${sep}${r.balance}${sep}${r.cat}`).join('\n');
+  dl('\uFEFF'+hdr+body,L==='fr'?'releve.csv':'statement.csv','text/csv;charset=utf-8');
+  notif(L==='fr'?'✓ CSV téléchargé':'✓ CSV downloaded');
 }
-
-function dlExcel() {
-  // Real .xlsx via SheetJS (N2)
-  if (typeof XLSX !== 'undefined') {
-    const rows  = getRows();
-    const wsData = [
-      L === 'fr'
-        ? ['Date', 'Description', 'Montant', 'Solde', 'Catégorie']
-        : ['Date', 'Description', 'Amount', 'Balance', 'Category'],
-      ...rows.map(r => [r.date, r.desc, r.amount, r.balance, r.cat]),
-    ];
-    const ws = XLSX.utils.aoa_to_sheet(wsData);
-    // Column widths
-    ws['!cols'] = [{ wch: 12 }, { wch: 40 }, { wch: 12 }, { wch: 14 }, { wch: 16 }];
-    const wb = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(wb, ws, 'Transactions');
-    XLSX.writeFile(wb, L === 'fr' ? 'releve.xlsx' : 'statement.xlsx');
-    notif(L === 'fr' ? '✓ Excel téléchargé' : '✓ Excel downloaded');
-  } else {
-    // Fallback — TSV-as-xlsx (SheetJS failed to load)
-    const rows = getRows();
-    const hdr  = L === 'fr' ? 'Date\tDescription\tMontant\tSolde\tCatégorie\n' : 'Date\tDescription\tAmount\tBalance\tCategory\n';
-    const body = rows.map(r => `${r.date}\t${r.desc}\t${r.amount}\t${r.balance}\t${r.cat}`).join('\n');
-    dl('\uFEFF' + hdr + body, L === 'fr' ? 'releve.xlsx' : 'statement.xlsx', 'application/vnd.ms-excel');
-    notif(L === 'fr' ? '✓ Excel téléchargé' : '✓ Excel downloaded');
-  }
-  track('export_clicked', { format: 'xlsx', tx_count: getRows().length, is_demo: IS_DEMO });
+function dlExcel(){
+  const rows=getRows();
+  const hdr=L==='fr'?'Date\tDescription\tMontant\tSolde\tCatégorie\n':'Date\tDescription\tAmount\tBalance\tCategory\n';
+  const body=rows.map(r=>`${r.date}\t${r.desc}\t${r.amount}\t${r.balance}\t${r.cat}`).join('\n');
+  dl('\uFEFF'+hdr+body,L==='fr'?'releve.xlsx':'statement.xlsx','application/vnd.ms-excel');
+  notif(L==='fr'?'✓ Excel téléchargé':'✓ Excel downloaded');
 }
-
-function dlJSON() {
-  const data = {
-    exported_at: new Date().toISOString(),
-    source: 'StatementConvert',
-    is_demo: IS_DEMO,
-    transactions: getRows().map(r => ({
-      date: r.date,
-      description: r.desc,
-      amount: r.amount,
-      balance: r.balance,
-      category: r.cat,
-    })),
-  };
-  dl(JSON.stringify(data, null, 2), L === 'fr' ? 'releve.json' : 'statement.json', 'application/json');
-  notif(L === 'fr' ? '✓ JSON téléchargé' : '✓ JSON downloaded');
-  track('export_clicked', { format: 'json', tx_count: getRows().length, is_demo: IS_DEMO });
+function dlJSON(){
+  const data={exported_at:new Date().toISOString(),language:L,source:'StatementConvert',transactions:getRows().map(r=>({date:r.date,description:r.desc,amount:r.amount,balance:r.balance,category:r.cat}))};
+  dl(JSON.stringify(data,null,2),L==='fr'?'releve.json':'statement.json','application/json');
+  notif(L==='fr'?'✓ JSON téléchargé':'✓ JSON downloaded');
 }
-
-function dlOFX() {
-  const rows = getRows();
-  const now  = new Date().toISOString().replace(/[-:T.]/g, '').slice(0, 14);
-  const stmts = rows.map((r, i) =>
-    `<STMTTRN><TRNTYPE>${r.amount.startsWith('+') ? 'CREDIT' : 'DEBIT'}<DTPOSTED>${now}<TRNAMT>${r.amount.replace(/[^0-9.\-]/g, '')}<FITID>${i + 1}<MEMO>${r.desc}</STMTTRN>`
-  ).join('\n');
-  const ofx = `OFXHEADER:100\nDATA:OFXSGML\nVERSION:102\n\n<OFX><BANKMSGSRSV1><STMTTRNRS><STMTRS><CURDEF>EUR<BANKTRANLIST>\n${stmts}\n</BANKTRANLIST></STMTRS></STMTTRNRS></BANKMSGSRSV1></OFX>`;
-  dl(ofx, L === 'fr' ? 'releve.ofx' : 'statement.ofx', 'application/x-ofx');
-  notif(L === 'fr' ? '✓ OFX téléchargé' : '✓ OFX downloaded');
-  track('export_clicked', { format: 'ofx', tx_count: getRows().length, is_demo: IS_DEMO });
+function dlOFX(){
+  const rows=getRows();
+  const now=new Date().toISOString().replace(/[-:T.]/g,'').slice(0,14);
+  const stmts=rows.map((r,i)=>`<STMTTRN><TRNTYPE>${r.amount.startsWith('+')?'CREDIT':'DEBIT'}<DTPOSTED>${now}<TRNAMT>${r.amount.replace(/[^0-9.-]/g,'')}<FITID>${i+1}<MEMO>${r.desc}</STMTTRN>`).join('\n');
+  const ofx=`OFXHEADER:100\nDATA:OFXSGML\nVERSION:102\n\n<OFX><BANKMSGSRSV1><STMTTRNRS><STMTRS><CURDEF>EUR<BANKTRANLIST>\n${stmts}\n</BANKTRANLIST></STMTRS></STMTTRNRS></BANKMSGSRSV1></OFX>`;
+  dl(ofx,L==='fr'?'releve.ofx':'statement.ofx','application/x-ofx');
+  notif(L==='fr'?'✓ OFX téléchargé':'✓ OFX downloaded');
 }
-
-/* ═══════════════════════════════════════════
-   HELPERS
-═══════════════════════════════════════════ */
-function dl(content, filename, mime) {
-  const blob = new Blob([content], { type: mime });
-  const url  = URL.createObjectURL(blob);
-  const a    = document.createElement('a');
-  a.href = url; a.download = filename;
-  document.body.appendChild(a); a.click();
+function dl(content,filename,mime){
+  const blob=new Blob([content],{type:mime});
+  const url=URL.createObjectURL(blob);
+  const a=document.createElement('a');
+  a.href=url;a.download=filename;document.body.appendChild(a);a.click();
   document.body.removeChild(a);
-  setTimeout(() => URL.revokeObjectURL(url), 1000);
+  setTimeout(()=>URL.revokeObjectURL(url),1000);
 }
-
-function notif(msg, err = false) {
-  // Remove any existing notif
-  document.querySelectorAll('.notif').forEach(n => n.remove());
-  const n = document.createElement('div');
-  n.className = 'notif ' + (err ? 'notif-err' : 'notif-ok');
-  n.textContent = msg;
-  document.body.appendChild(n);
-  // Allow clicking to dismiss early
-  n.addEventListener('click', () => n.remove());
-  setTimeout(() => n.remove(), err ? 6000 : 3000);
+function notif(msg,err=false){
+  const n=document.createElement('div');
+  n.className='notif '+(err?'notif-err':'notif-ok');
+  n.textContent=msg;document.body.appendChild(n);
+  setTimeout(()=>n.remove(),3000);
 }
-
-/* ═══════════════════════════════════════════
-   INIT
-═══════════════════════════════════════════ */
-const params = new URLSearchParams(window.location.search);
-if (params.get('payment') === 'success') {
-  notif(L === 'fr' ? '✓ Paiement réussi — bienvenue !' : '✓ Payment successful — welcome!');
-  track('payment_success');
-}
+const params=new URLSearchParams(window.location.search);
+if(params.get('payment')==='success')notif(L==='fr'?'✓ Paiement réussi — bienvenue !':'✓ Payment successful — welcome!');
 </script>
-
-<!-- Stripe — loaded separately, only needed for checkout -->
 <script src="https://js.stripe.com/v3/" defer></script>
 <script defer>
-window.addEventListener('load', () => {
-  if (typeof Stripe === 'undefined') return;
-  const stripe = Stripe('pk_live_51SrwNIRqpJ66wdpMxX7KH7Y4lN0oOw94KMurfqmNElLcahXbx41LUwOqRcCM1omczQQenz5Ro3w8ZuFmvd9ZtGJs00yfRJBePg');
-  window.stripeCheckout = async function (priceId) {
-   
-    const btn  = event.currentTarget;
-    const orig = btn.innerHTML;
-    btn.textContent = L === 'fr' ? 'Redirection…' : 'Redirecting…';
-    btn.disabled = true;
-    track('checkout_started', { price_id: priceId });
-    try {
-      const resp = await fetch('https://statementconvert-backend.onrender.com/create-checkout-session', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ priceId })
-      });
-      const { url } = await resp.json();
-      window.location.href = url;
+window.addEventListener('load',()=>{
+  if(typeof Stripe==='undefined')return;
+  const stripe=Stripe('pk_live_51SrwNIRqpJ66wdpMxX7KH7Y4lN0oOw94KMurfqmNElLcahXbx41LUwOqRcCM1omczQQenz5Ro3w8ZuFmvd9ZtGJs00yfRJBePg');
+  window.stripeCheckout=async function(priceId){
+    if(priceId==='price_STARTER'||priceId==='price_TEAM'){
+      notif(L==='fr'?'Ce plan sera bientôt disponible — contactez-nous !':'This plan is coming soon — contact us!');
       return;
-      const { error } = { error: null };
-      if (error) { notif(error.message, true); btn.innerHTML = orig; btn.disabled = false; }
-    } catch (e) {
-      notif(L === 'fr' ? 'Erreur — réessayez' : 'Error — please try again', true);
-      btn.innerHTML = orig; btn.disabled = false;
+    }
+    const btn=event.currentTarget;
+    const orig=btn.innerHTML;
+    btn.textContent=L==='fr'?'Redirection...':'Redirecting...';
+    btn.disabled=true;
+    try{
+      const{error}=await stripe.redirectToCheckout({
+        lineItems:[{price:priceId,quantity:1}],
+        mode:'subscription',
+        successUrl:window.location.origin+'?payment=success',
+        cancelUrl:window.location.href,
+      });
+      if(error){notif(error.message,true);btn.innerHTML=orig;btn.disabled=false;}
+    }catch(e){
+      notif(L==='fr'?'Erreur — réessayez':'Error — please try again',true);
+      btn.innerHTML=orig;btn.disabled=false;
     }
   };
 });
