@@ -1,0 +1,770 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>StatementConvert — Pour les Experts-Comptables</title>
+<meta name="description" content="Convertissez vos relevés bancaires PDF en CSV, Excel ou OFX en moins de 10 secondes. Compatible Sage, Cegid, Pennylane. Gratuit pour essayer.">
+<link rel="canonical" href="https://statementconvert.netlify.app/">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{font-family:'Inter',-apple-system,sans-serif;background:#fff;color:#111;font-size:15px;line-height:1.6;-webkit-font-smoothing:antialiased}
+@keyframes fadeUp{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:none}}
+@keyframes fadeIn{from{opacity:0}to{opacity:1}}
+@keyframes spin{to{transform:rotate(360deg)}}
+.reveal{opacity:0;transform:translateY(24px);transition:opacity .6s cubic-bezier(.16,1,.3,1),transform .6s cubic-bezier(.16,1,.3,1)}
+.reveal.visible{opacity:1;transform:none}
+
+/* NAV */
+nav{position:fixed;top:0;left:0;right:0;z-index:100;display:flex;align-items:center;justify-content:space-between;padding:0 40px;height:56px;background:rgba(255,255,255,.92);backdrop-filter:blur(12px);border-bottom:1px solid #f0f0f0}
+.nav-logo{font-size:.95rem;font-weight:600;color:#111;text-decoration:none;letter-spacing:-.02em;cursor:pointer}
+.nav-links{display:flex;gap:32px;list-style:none}
+.nav-links a{font-size:.85rem;color:#666;text-decoration:none;transition:color .15s;cursor:pointer}
+.nav-links a:hover{color:#111}
+.nav-cta{background:#111;color:#fff!important;font-size:.82rem!important;font-weight:500!important;padding:7px 16px;border-radius:7px;text-decoration:none!important;transition:opacity .15s;cursor:pointer;border:none;font-family:inherit}
+.nav-cta:hover{opacity:.8}
+
+/* HERO */
+.hero{padding:120px 40px 80px;max-width:760px;margin:0 auto;text-align:center}
+.hero-tag{display:inline-block;font-size:.75rem;font-weight:500;color:#666;background:#f5f5f5;border:1px solid #e8e8e8;padding:4px 12px;border-radius:100px;margin-bottom:28px;letter-spacing:.01em}
+.hero h1{font-size:clamp(2rem,5vw,3.2rem);font-weight:600;letter-spacing:-.04em;line-height:1.1;color:#111;margin-bottom:20px}
+.hero h1 em{font-style:italic;font-weight:300;color:#444}
+.hero p{font-size:1.05rem;color:#666;line-height:1.7;max-width:520px;margin:0 auto 36px}
+.hero-actions{display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin-bottom:40px}
+.btn-dark{background:#111;color:#fff;font-size:.875rem;font-weight:500;padding:11px 22px;border-radius:9px;text-decoration:none;transition:opacity .15s;cursor:pointer;border:none;font-family:inherit}
+.btn-dark:hover{opacity:.8}
+.btn-ghost{background:transparent;color:#444;font-size:.875rem;padding:11px 22px;border-radius:9px;text-decoration:none;border:1px solid #e0e0e0;transition:border-color .15s;cursor:pointer;font-family:inherit}
+.btn-ghost:hover{border-color:#aaa}
+.trust-badges{display:flex;gap:20px;justify-content:center;flex-wrap:wrap}
+.trust-badge{display:flex;align-items:center;gap:6px;font-size:.78rem;color:#999}
+
+/* DIVIDER */
+hr{border:none;border-top:1px solid #f0f0f0}
+
+/* SECTIONS */
+.section{padding:80px 40px;max-width:860px;margin:0 auto}
+.section-label{font-size:.72rem;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:#999;margin-bottom:12px}
+.section h2{font-size:clamp(1.6rem,3.5vw,2.4rem);font-weight:600;letter-spacing:-.03em;line-height:1.15;color:#111;margin-bottom:16px}
+.section h2 em{font-style:italic;font-weight:300;color:#555}
+.section-sub{font-size:.975rem;color:#777;line-height:1.7;max-width:500px;margin-bottom:48px}
+
+/* STAT BOX */
+.stat-box{background:#fafafa;border:1px solid #ebebeb;border-radius:14px;padding:28px 32px;display:flex;align-items:center;gap:24px;margin-bottom:40px;flex-wrap:wrap}
+.stat-num{font-size:2.8rem;font-weight:600;letter-spacing:-.04em;color:#111;flex-shrink:0}
+.stat-text{font-size:.875rem;color:#777;line-height:1.6}
+.stat-text strong{color:#333;font-weight:500}
+
+/* PAIN GRID */
+.pain-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:1px;background:#ebebeb;border:1px solid #ebebeb;border-radius:14px;overflow:hidden}
+.pain-card{background:#fff;padding:28px}
+.pain-card .icon{font-size:1.2rem;margin-bottom:12px}
+.pain-card h3{font-size:.9rem;font-weight:600;color:#111;margin-bottom:6px;letter-spacing:-.01em}
+.pain-card p{font-size:.83rem;color:#888;line-height:1.6}
+
+/* BEFORE/AFTER */
+.ba-grid{display:grid;grid-template-columns:1fr 1fr;gap:1px;background:#ebebeb;border:1px solid #ebebeb;border-radius:14px;overflow:hidden}
+.ba-col{background:#fff;padding:28px}
+.ba-label{font-size:.72rem;font-weight:600;letter-spacing:.1em;text-transform:uppercase;margin-bottom:16px}
+.ba-before .ba-label{color:#dc2626}
+.ba-after .ba-label{color:#059669}
+.ba-item{display:flex;align-items:flex-start;gap:8px;font-size:.875rem;color:#666;margin-bottom:10px;line-height:1.5}
+.ba-marker{flex-shrink:0;font-weight:600}
+.ba-before .ba-marker{color:#dc2626}
+.ba-after .ba-marker{color:#059669}
+
+/* STEPS */
+.steps{display:grid;grid-template-columns:repeat(3,1fr);gap:1px;background:#ebebeb;border:1px solid #ebebeb;border-radius:14px;overflow:hidden}
+.step{background:#fff;padding:28px}
+.step-num{font-size:.72rem;font-weight:600;color:#bbb;letter-spacing:.08em;margin-bottom:14px}
+.step h3{font-size:.9rem;font-weight:600;color:#111;margin-bottom:8px;letter-spacing:-.01em}
+.step p{font-size:.83rem;color:#888;line-height:1.6}
+
+/* INTEGRATIONS */
+.integrations-wrap{display:flex;flex-wrap:wrap;gap:8px;margin-top:32px}
+.integ-pill{display:flex;align-items:center;gap:6px;font-size:.8rem;color:#555;background:#fafafa;border:1px solid #ebebeb;border-radius:100px;padding:5px 14px}
+.dot-green{width:6px;height:6px;background:#059669;border-radius:50%;flex-shrink:0}
+
+/* SECURITY */
+.sec-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:1px;background:#ebebeb;border:1px solid #ebebeb;border-radius:14px;overflow:hidden;margin-top:40px}
+.sec-item{background:#fff;padding:28px}
+.sec-item .num{font-size:.72rem;font-weight:600;color:#bbb;letter-spacing:.08em;margin-bottom:10px}
+.sec-item h4{font-size:.875rem;font-weight:600;color:#111;margin-bottom:6px}
+.sec-item p{font-size:.83rem;color:#888;line-height:1.6}
+
+/* PRICING */
+.pricing-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-top:40px}
+.plan{border:1px solid #e8e8e8;border-radius:14px;padding:24px;position:relative;background:#fff;transition:border-color .2s;display:flex;flex-direction:column}
+.plan:hover{border-color:#aaa}
+.plan.featured{border-color:#111;box-shadow:0 4px 24px rgba(0,0,0,.08)}
+.plan-tag{position:absolute;top:-10px;left:18px;background:#111;color:#fff;font-size:.7rem;font-weight:600;padding:2px 10px;border-radius:100px;letter-spacing:.04em}
+.plan-name{font-size:.72rem;font-weight:600;color:#999;text-transform:uppercase;letter-spacing:.08em;margin-bottom:10px}
+.plan-price{font-size:2.2rem;font-weight:600;letter-spacing:-.04em;color:#111;line-height:1;margin-bottom:4px}
+.plan-price sup{font-size:.9rem;vertical-align:super}
+.plan-price sub{font-size:.8rem;color:#999;font-weight:400}
+.plan-desc{font-size:.8rem;color:#888;margin-bottom:16px;line-height:1.5}
+.plan-sep{border:none;border-top:1px solid #f0f0f0;margin-bottom:14px}
+.plan-feat{list-style:none;display:flex;flex-direction:column;gap:7px;margin-bottom:20px;flex:1}
+.plan-feat li{font-size:.82rem;color:#666;display:flex;gap:7px;line-height:1.5}
+.plan-feat li::before{content:"—";color:#ccc;flex-shrink:0}
+.plan-btn{display:block;width:100%;padding:10px;border-radius:8px;font-size:.85rem;font-weight:500;cursor:pointer;border:1px solid #e0e0e0;background:#fff;color:#111;font-family:inherit;transition:all .15s;margin-top:auto;text-align:center;text-decoration:none}
+.plan-btn:hover{border-color:#111}
+.plan.featured .plan-btn{background:#111;color:#fff;border-color:#111}
+.plan.featured .plan-btn:hover{opacity:.85}
+.pricing-note{text-align:center;margin-top:16px;font-size:.75rem;color:#bbb}
+.enterprise-row{border:1px solid #e8e8e8;border-radius:12px;padding:22px 28px;margin-top:12px;display:flex;align-items:center;justify-content:space-between;gap:20px;flex-wrap:wrap}
+.enterprise-left h3{font-size:.9rem;font-weight:600;margin-bottom:4px}
+.enterprise-left p{font-size:.83rem;color:#888}
+.btn-outline{padding:9px 20px;border-radius:8px;font-size:.85rem;font-weight:500;cursor:pointer;border:1px solid #e0e0e0;background:#fff;color:#111;font-family:inherit;transition:all .15s;white-space:nowrap}
+.btn-outline:hover{border-color:#111}
+
+/* FAQ */
+.faq-item{border-top:1px solid #f0f0f0}
+.faq-item:last-child{border-bottom:1px solid #f0f0f0}
+.faq-q{padding:18px 0;cursor:pointer;display:flex;justify-content:space-between;align-items:center;font-size:.9rem;color:#111;font-weight:500;user-select:none;gap:12px}
+.faq-q:hover{color:#555}
+.faq-toggle{color:#bbb;font-size:1.2rem;transition:transform .2s;flex-shrink:0}
+.faq-a{font-size:.85rem;color:#777;line-height:1.75;max-height:0;overflow:hidden;transition:all .28s}
+.faq-item.open .faq-a{max-height:220px;padding-bottom:18px}
+.faq-item.open .faq-toggle{transform:rotate(45deg)}
+
+/* FINAL CTA */
+.final{padding:80px 40px;max-width:600px;margin:0 auto;text-align:center}
+.final h2{font-size:clamp(1.6rem,3.5vw,2.4rem);font-weight:600;letter-spacing:-.03em;line-height:1.15;color:#111;margin-bottom:12px}
+.final h2 em{font-style:italic;font-weight:300;color:#555}
+.final p{font-size:.975rem;color:#777;margin-bottom:28px}
+
+/* FOOTER */
+footer{border-top:1px solid #f0f0f0;padding:32px 40px;text-align:center}
+.footer-logo{font-size:.95rem;font-weight:600;color:#111;text-decoration:none;letter-spacing:-.02em;display:block;margin-bottom:8px}
+footer p{font-size:.78rem;color:#aaa;margin-bottom:12px}
+.footer-links{display:flex;gap:20px;justify-content:center}
+.footer-links a{font-size:.78rem;color:#aaa;text-decoration:none;transition:color .15s}
+.footer-links a:hover{color:#111}
+
+/* UPLOAD PAGE */
+.upg{max-width:560px;margin:0 auto;padding:90px 40px 80px}
+.bk{display:inline-flex;align-items:center;gap:5px;color:#aaa;font-size:.78rem;cursor:pointer;border:none;background:none;font-family:inherit;margin-bottom:32px;transition:color .15s}
+.bk:hover{color:#111}
+.upg h1{font-size:1.9rem;font-weight:600;letter-spacing:-.03em;margin-bottom:6px}
+.upg .sub{font-size:.875rem;color:#777;margin-bottom:28px;line-height:1.6}
+.dz{border:1px solid #e8e8e8;border-radius:12px;padding:44px 28px;text-align:center;cursor:pointer;transition:all .2s;background:#fafafa;position:relative}
+.dz:hover,.dz.ov{border-color:#111;background:#fff}
+.dz input{position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%}
+.dz-icon{width:44px;height:44px;border:1px solid #e8e8e8;border-radius:10px;display:flex;align-items:center;justify-content:center;margin:0 auto 14px;background:#fff}
+.dz-icon svg{width:20px;height:20px;stroke:#999;fill:none;stroke-width:1.5;stroke-linecap:round;stroke-linejoin:round}
+.dz-t{font-size:.875rem;font-weight:500;margin-bottom:4px}
+.dz-s{font-size:.8rem;color:#aaa}
+.dz-fmts{display:flex;gap:5px;justify-content:center;margin-top:12px;flex-wrap:wrap}
+.fmt{font-size:.7rem;color:#888;background:#f0f0f0;border-radius:3px;padding:2px 7px}
+.frow{display:none;align-items:center;gap:10px;background:#fafafa;border:1px solid #e8e8e8;border-radius:9px;padding:10px 14px;margin-top:10px}
+.frow.show{display:flex}
+.fri{width:30px;height:30px;border:1px solid #e8e8e8;border-radius:7px;display:flex;align-items:center;justify-content:center;flex-shrink:0;background:#fff}
+.fri svg{width:14px;height:14px;stroke:#999;fill:none;stroke-width:1.5;stroke-linecap:round;stroke-linejoin:round}
+.fnm{font-size:.875rem;font-weight:500}.fsz{font-size:.75rem;color:#aaa}
+.frm{margin-left:auto;background:none;border:none;color:#aaa;cursor:pointer;font-size:1.1rem;line-height:1}
+.frm:hover{color:#111}
+.opts{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:14px}
+.og label{font-size:.7rem;color:#aaa;display:block;margin-bottom:5px;text-transform:uppercase;letter-spacing:.06em;font-weight:600}
+.og select{width:100%;background:#fff;border:1px solid #e8e8e8;border-radius:7px;color:#111;padding:9px 11px;font-size:.875rem;font-family:inherit;outline:none;transition:border-color .15s}
+.og select:focus{border-color:#111}
+.cvbtn{width:100%;margin-top:14px;background:#111;color:#fff;padding:13px;border-radius:9px;font-size:.9rem;font-weight:500;border:none;cursor:pointer;font-family:inherit;transition:all .2s;display:flex;align-items:center;justify-content:center;gap:7px}
+.cvbtn:hover:not(:disabled){background:#333;transform:translateY(-1px)}
+.cvbtn:disabled{opacity:.3;cursor:not-allowed}
+.sec-row{display:flex;align-items:center;justify-content:center;gap:14px;margin-top:9px;flex-wrap:wrap}
+.si{font-size:.72rem;color:#bbb;display:flex;align-items:center;gap:4px}
+.si::before{content:"✓";color:#059669}
+.pw{display:none;margin-top:18px}
+.pw.show{display:block}
+.phdr{display:flex;justify-content:space-between;font-size:.75rem;color:#aaa;margin-bottom:7px}
+.ptr{height:2px;background:#f0f0f0;border-radius:2px;margin-bottom:14px;overflow:hidden}
+.pb{height:100%;background:#111;width:0;transition:width .25s;border-radius:2px}
+.psteps{display:flex;flex-direction:column;gap:5px}
+.ps{display:flex;align-items:center;gap:6px;font-size:.78rem;color:#bbb}
+.ps.act{color:#111;font-weight:500}.ps.dn{color:#059669}
+.ps.dn .psd{display:none}
+.ps.dn::before{content:"✓";font-size:.72rem}
+.psd{width:4px;height:4px;border-radius:50%;background:currentColor;flex-shrink:0}
+.rsp{display:none;margin-top:28px}
+.rsp.show{display:block}
+.rchips{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:14px}
+.rch{font-size:.72rem;padding:3px 9px;border-radius:4px}
+.rg{background:#ecfdf5;color:#059669}
+.ep{background:#fafafa;border:1px solid #e8e8e8;border-radius:9px;padding:14px;margin-bottom:10px}
+.ep-t{font-size:.72rem;color:#aaa;text-transform:uppercase;letter-spacing:.07em;font-weight:600;margin-bottom:9px}
+.ebtns{display:flex;gap:5px;flex-wrap:wrap}
+.eb{display:flex;align-items:center;gap:4px;padding:6px 11px;border-radius:5px;font-size:.75rem;cursor:pointer;border:none;transition:all .15s;font-family:inherit}
+.eb:hover{opacity:.82}
+.eb svg{width:11px;height:11px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.eb-c{background:#d1fae5;color:#065f46}.eb-x{background:#dbeafe;color:#1e3a8a}.eb-j{background:#fef3c7;color:#78350f}.eb-o{background:#ede9fe;color:#4c1d95}
+.tw{background:#fff;border:1px solid #e8e8e8;border-radius:9px;overflow:auto}
+table.pr{width:100%;border-collapse:collapse;font-size:.78rem}
+table.pr th{padding:9px 12px;text-align:left;color:#aaa;font-weight:600;font-size:.68rem;background:#fafafa;border-bottom:1px solid #e8e8e8;text-transform:uppercase;letter-spacing:.05em}
+table.pr td{padding:9px 12px;border-bottom:1px solid #f5f5f5}
+table.pr tr:last-child td{border:none}
+table.pr tr:hover td{background:#fafafa}
+.tpos{color:#059669}.tneg{color:#dc2626}
+.tcat{font-size:.7rem;color:#888;background:#f0f0f0;border-radius:3px;padding:1px 5px}
+td[contenteditable]{cursor:text}
+td[contenteditable]:focus{outline:none;background:#eff6ff}
+.notif{position:fixed;top:68px;left:50%;transform:translateX(-50%);padding:10px 22px;border-radius:7px;font-size:.82rem;z-index:9999;white-space:nowrap;animation:fadeIn .25s ease}
+.notif-ok{background:#111;color:#fff}
+.notif-err{background:#dc2626;color:#fff}
+
+@media(max-width:800px){
+  nav{padding:0 18px}.nav-links{display:none}
+  .hero,.section,.final,.upg{padding-left:18px;padding-right:18px}
+  footer{padding:28px 18px}
+  .steps,.ba-grid,.sec-grid,.pricing-grid{grid-template-columns:1fr}
+  .opts{grid-template-columns:1fr}
+  .enterprise-row{flex-direction:column;align-items:flex-start}
+}
+</style>
+</head>
+<body>
+
+<nav>
+  <span class="nav-logo" onclick="pg('land')">StatementConvert</span>
+  <ul class="nav-links">
+    <li><a onclick="sc('problem')">Le problème</a></li>
+    <li><a onclick="sc('how')">Comment ça marche</a></li>
+    <li><a onclick="sc('integrations')">Intégrations</a></li>
+    <li><a onclick="sc('pricing')">Tarifs</a></li>
+    <li><a onclick="sc('faq')">FAQ</a></li>
+  </ul>
+  <button class="nav-cta" onclick="pg('up')">Essayer gratuitement</button>
+</nav>
+
+<!-- ══════════ LANDING PAGE ══════════ -->
+<div id="land">
+
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-tag">Pour les experts-comptables &amp; cabinets</div>
+  <h1>Fini la ressaisie manuelle<br><em>des relevés bancaires.</em></h1>
+  <p>Déposez n'importe quel relevé PDF, CSV ou photo. Chaque transaction est extraite, vérifiable et prête à importer dans Sage, Cegid ou Pennylane — en moins de 10 secondes.</p>
+  <div class="hero-actions">
+    <button class="btn-dark" onclick="pg('up')">Convertir mon premier relevé →</button>
+    <button class="btn-ghost" onclick="sc('how')">Voir comment ça marche</button>
+  </div>
+  <div class="trust-badges">
+    <span class="trust-badge"><svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>Sans inscription requise</span>
+    <span class="trust-badge"><svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>Fichiers supprimés en 1h</span>
+    <span class="trust-badge"><svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>Chiffré AES-256</span>
+    <span class="trust-badge"><svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>Conforme RGPD</span>
+  </div>
+</section>
+
+<!-- STAT -->
+<div style="padding:0 40px 60px;max-width:860px;margin:0 auto">
+  <div class="stat-box reveal">
+    <div class="stat-num">47 min</div>
+    <div class="stat-text"><strong>C'est le temps moyen perdu par relevé bancaire</strong> en saisie manuelle, vérification et mise en forme. Avec StatementConvert, c'est moins de 10 secondes.</div>
+  </div>
+</div>
+
+<hr>
+
+<!-- PROBLÈME -->
+<section class="section reveal" id="problem">
+  <div class="section-label">Le problème</div>
+  <h2>La ressaisie bancaire,<br><em>un gouffre de temps caché</em></h2>
+  <p class="section-sub">Chaque relevé PDF reçu d'un client est une heure perdue. Copier-coller, reformater, vérifier les totaux — des tâches répétitives à faible valeur ajoutée.</p>
+  <div class="pain-grid">
+    <div class="pain-card"><div class="icon">⏱</div><h3>Saisie manuelle chronophage</h3><p>Recopier transaction par transaction depuis un PDF vers Excel ou votre logiciel — long, répétitif, source d'erreurs.</p></div>
+    <div class="pain-card"><div class="icon">❌</div><h3>Erreurs de frappe fréquentes</h3><p>Un zéro de trop, un signe inversé — les erreurs créent des écarts difficiles à identifier lors des rapprochements.</p></div>
+    <div class="pain-card"><div class="icon">🏦</div><h3>Formats incompatibles entre banques</h3><p>Chaque banque a son propre format de PDF. BNP, SG, LCL, Revolut — impossible d'automatiser sans outil dédié.</p></div>
+    <div class="pain-card"><div class="icon">💸</div><h3>Valeur ajoutée sacrifiée</h3><p>Du temps facturable perdu sur des tâches que vos clients n'apprécient pas, pendant que vous pourriez vous concentrer sur le conseil.</p></div>
+  </div>
+</section>
+
+<hr>
+
+<!-- BEFORE/AFTER -->
+<section class="section reveal">
+  <div class="section-label">Avant / Après</div>
+  <h2>Ce que ça change<br><em>concrètement</em></h2>
+  <div class="ba-grid">
+    <div class="ba-col ba-before">
+      <div class="ba-label">Avant StatementConvert</div>
+      <div class="ba-item"><span class="ba-marker">✗</span>Ouvrir le PDF côte à côte avec Excel</div>
+      <div class="ba-item"><span class="ba-marker">✗</span>Recopier chaque ligne manuellement</div>
+      <div class="ba-item"><span class="ba-marker">✗</span>Reformater les dates et montants</div>
+      <div class="ba-item"><span class="ba-marker">✗</span>Vérifier les totaux à la main</div>
+      <div class="ba-item"><span class="ba-marker">✗</span>Recommencer pour chaque client et chaque mois</div>
+      <div class="ba-item"><span class="ba-marker">✗</span>45 minutes minimum par relevé</div>
+    </div>
+    <div class="ba-col ba-after">
+      <div class="ba-label">Avec StatementConvert</div>
+      <div class="ba-item"><span class="ba-marker">✓</span>Déposer le PDF ou la photo</div>
+      <div class="ba-item"><span class="ba-marker">✓</span>Vérifier l'aperçu en quelques secondes</div>
+      <div class="ba-item"><span class="ba-marker">✓</span>Corriger une cellule si besoin (édition inline)</div>
+      <div class="ba-item"><span class="ba-marker">✓</span>Export OFX direct dans Sage, Cegid, Pennylane</div>
+      <div class="ba-item"><span class="ba-marker">✓</span>Passer au client suivant</div>
+      <div class="ba-item"><span class="ba-marker">✓</span>Moins de 10 secondes par relevé</div>
+    </div>
+  </div>
+</section>
+
+<hr>
+
+<!-- HOW IT WORKS -->
+<section class="section reveal" id="how">
+  <div class="section-label">Comment ça marche</div>
+  <h2>Trois étapes.<br><em>Zéro ressaisie.</em></h2>
+  <p class="section-sub">Conçu pour s'intégrer dans votre workflow sans formation ni configuration.</p>
+  <div class="steps">
+    <div class="step"><div class="step-num">01</div><h3>Déposez le relevé</h3><p>PDF numérique, PDF scanné ou photo — peu importe la banque. BNP Paribas, Société Générale, LCL, CIC, Crédit Agricole, Boursorama, Qonto et plus.</p></div>
+    <div class="step"><div class="step-num">02</div><h3>Extraction automatique</h3><p>Notre IA lit et structure chaque transaction en moins de 10 secondes : date, libellé, montant, solde. Sans règles, sans templates, sans configuration.</p></div>
+    <div class="step"><div class="step-num">03</div><h3>Vérifiez et exportez</h3><p>Prévisualisez toutes les transactions. Cliquez sur n'importe quelle cellule pour corriger. Exportez en CSV, Excel, JSON ou OFX — prêt pour votre logiciel.</p></div>
+  </div>
+</section>
+
+<hr>
+
+<!-- INTEGRATIONS -->
+<section class="section reveal" id="integrations">
+  <div class="section-label">Intégrations</div>
+  <h2>Compatible avec vos<br><em>logiciels comptables</em></h2>
+  <p class="section-sub">Exportez dans le format attendu par votre logiciel. Import direct, sans conversion supplémentaire.</p>
+  <div class="integrations-wrap">
+    <div class="integ-pill"><span class="dot-green"></span>Sage 50 / 100</div>
+    <div class="integ-pill"><span class="dot-green"></span>Cegid</div>
+    <div class="integ-pill"><span class="dot-green"></span>Pennylane</div>
+    <div class="integ-pill"><span class="dot-green"></span>EBP</div>
+    <div class="integ-pill"><span class="dot-green"></span>QuickBooks</div>
+    <div class="integ-pill"><span class="dot-green"></span>Xero</div>
+    <div class="integ-pill"><span class="dot-green"></span>FEC Manager</div>
+    <div class="integ-pill"><span class="dot-green"></span>Excel / Google Sheets</div>
+    <div class="integ-pill"><span class="dot-green"></span>Tout outil acceptant CSV</div>
+  </div>
+</section>
+
+<hr>
+
+<!-- SECURITY -->
+<section class="section reveal">
+  <div class="section-label">Sécurité &amp; RGPD</div>
+  <h2>Vos données clients<br><em>restent sous contrôle</em></h2>
+  <p class="section-sub">Les relevés bancaires sont des données sensibles. StatementConvert est conçu pour répondre aux obligations de confidentialité des cabinets d'expertise comptable.</p>
+  <div class="sec-grid">
+    <div class="sec-item"><div class="num">01</div><h4>Chiffrement AES-256</h4><p>Chaque fichier est chiffré en transit avec AES-256 — le standard des institutions financières.</p></div>
+    <div class="sec-item"><div class="num">02</div><h4>Suppression en 1h</h4><p>Votre fichier est automatiquement et définitivement supprimé dans l'heure suivant la conversion. Aucune exception.</p></div>
+    <div class="sec-item"><div class="num">03</div><h4>Conforme RGPD</h4><p>Aucun compte requis pour tester. Zéro donnée personnelle collectée en mode gratuit.</p></div>
+    <div class="sec-item"><div class="num">04</div><h4>Données jamais revendues</h4><p>Nous ne lisons pas, ne stockons pas et ne revendons aucune donnée financière de vos clients.</p></div>
+  </div>
+</section>
+
+<hr>
+
+<!-- PRICING -->
+<section class="section reveal" id="pricing">
+  <div class="section-label">Tarifs</div>
+  <h2>Commencez gratuitement.<br><em>Payez seulement quand vous en avez besoin.</em></h2>
+  <p class="section-sub">Pas de carte bancaire pour tester. Résiliez à tout moment.</p>
+  <div class="pricing-grid">
+    <div class="plan">
+      <div class="plan-name">Gratuit</div>
+      <div class="plan-price"><sup>€</sup>0<sub>/mois</sub></div>
+      <div class="plan-desc">Pour tester le workflow sans engagement.</div>
+      <hr class="plan-sep">
+      <ul class="plan-feat">
+        <li>3 conversions incluses</li>
+        <li>PDF, CSV, image</li>
+        <li>Export CSV &amp; Excel</li>
+        <li>Aperçu &amp; édition</li>
+      </ul>
+      <button class="plan-btn" onclick="pg('up')">Tester gratuitement</button>
+    </div>
+    <div class="plan featured">
+      <div class="plan-tag">Le plus populaire</div>
+      <div class="plan-name">Pro</div>
+      <div class="plan-price"><sup>€</sup>49<sub>/mois</sub></div>
+      <div class="plan-desc">Pour le comptable solo avec volume régulier.</div>
+      <hr class="plan-sep">
+      <ul class="plan-feat">
+        <li>Conversions illimitées</li>
+        <li>CSV, Excel, JSON, OFX</li>
+        <li>Historique complet</li>
+        <li>Traitement prioritaire</li>
+        <li>Support email</li>
+      </ul>
+      <button class="plan-btn" onclick="stripeCheckout('price_1TYra7RqpJ66wdpMKiwUQGaP')">Démarrer en Pro</button>
+    </div>
+    <div class="plan">
+      <div class="plan-name">Cabinet</div>
+      <div class="plan-price"><sup>€</sup>199<sub>/mois</sub></div>
+      <div class="plan-desc">Pour un cabinet avec plusieurs collaborateurs.</div>
+      <hr class="plan-sep">
+      <ul class="plan-feat">
+        <li>Tout le plan Pro</li>
+        <li>Utilisateurs illimités</li>
+        <li>Historique partagé équipe</li>
+        <li>Support prioritaire</li>
+        <li>Accès anticipé nouveautés</li>
+      </ul>
+      <button class="plan-btn" onclick="stripeCheckout('price_1TbyW8RqpJ66wdpM49nUW5xH')">Choisir Cabinet</button>
+    </div>
+  </div>
+  <div class="enterprise-row">
+    <div class="enterprise-left">
+      <h3>Groupe / Grande structure</h3>
+      <p>Volume sur-mesure, SSO, SLA, support dédié et revue de sécurité.</p>
+    </div>
+    <button class="btn-outline" onclick="window.location.href='mailto:hello@statementconvert.app'">Nous contacter</button>
+  </div>
+  <p class="pricing-note">⚠ Tarifs de lancement susceptibles d'évoluer. Remboursement sous 7 jours si l'outil ne fonctionne pas pour votre cas d'usage.</p>
+</section>
+
+<hr>
+
+<!-- FAQ -->
+<section class="section reveal" id="faq">
+  <div class="section-label">FAQ</div>
+  <h2>Questions fréquentes<br><em>des experts-comptables</em></h2>
+  <div style="margin-top:40px">
+    <div class="faq-item"><div class="faq-q">Est-ce que ça fonctionne avec toutes les banques françaises ?<span class="faq-toggle">+</span></div><div class="faq-a">Oui. StatementConvert supporte les PDFs de toutes les grandes banques françaises — BNP Paribas, Société Générale, LCL, CIC, Crédit Agricole, La Banque Postale, Caisse d'Épargne, Boursorama, Revolut Business, Qonto, et plus encore.</div></div>
+    <div class="faq-item"><div class="faq-q">Les données financières de mes clients sont-elles en sécurité ?<span class="faq-toggle">+</span></div><div class="faq-a">Absolument. Chaque fichier est chiffré en transit (AES-256) et supprimé définitivement dans l'heure suivant la conversion. Nous ne lisons pas, ne stockons pas et ne revendons aucune donnée.</div></div>
+    <div class="faq-item"><div class="faq-q">Le fichier exporté est-il directement importable dans Sage ou Cegid ?<span class="faq-toggle">+</span></div><div class="faq-a">Oui. L'export OFX est conçu pour un import direct dans Sage, QuickBooks et Xero. L'export CSV est compatible avec Cegid, Pennylane, EBP et tout logiciel acceptant les imports CSV.</div></div>
+    <div class="faq-item"><div class="faq-q">Que se passe-t-il si la conversion comporte des erreurs ?<span class="faq-toggle">+</span></div><div class="faq-a">Avant tout téléchargement, vous voyez un aperçu complet de toutes les transactions. Chaque cellule est éditable. Si le résultat n'est pas satisfaisant, vous êtes remboursé sous 7 jours.</div></div>
+    <div class="faq-item"><div class="faq-q">Est-ce que ça fonctionne avec des PDFs scannés ou des photos ?<span class="faq-toggle">+</span></div><div class="faq-a">Oui. Notre moteur extrait les données depuis des documents scannés ou photographiés. La précision est légèrement inférieure sur des scans de mauvaise qualité — c'est pourquoi l'étape de prévisualisation éditable est particulièrement utile.</div></div>
+    <div class="faq-item"><div class="faq-q">Puis-je traiter plusieurs relevés à la suite pour un même client ?<span class="faq-toggle">+</span></div><div class="faq-a">Oui. Avec les plans Pro et Cabinet, vous pouvez convertir un volume illimité de relevés. Le plan Cabinet inclut un historique partagé entre tous les collaborateurs.</div></div>
+  </div>
+</section>
+
+<hr>
+
+<!-- FINAL CTA -->
+<section class="final reveal">
+  <h2>Arrêtez de copier-coller<br><em>depuis des PDF.</em></h2>
+  <p>Testez gratuitement — sans compte, sans carte bancaire.</p>
+  <div class="hero-actions">
+    <button class="btn-dark" onclick="pg('up')">Convertir mon premier relevé →</button>
+    <button class="btn-ghost" onclick="sc('pricing')">Voir les tarifs</button>
+  </div>
+  <div class="trust-badges" style="margin-top:20px">
+    <span class="trust-badge"><svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>Sans inscription requise</span>
+    <span class="trust-badge"><svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>Fichiers supprimés en 1h</span>
+    <span class="trust-badge"><svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>Conforme RGPD</span>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <span class="footer-logo" onclick="pg('land')" style="cursor:pointer">StatementConvert</span>
+  <p>© 2026 StatementConvert · Fait pour les experts-comptables français</p>
+  <div class="footer-links">
+    <a href="/privacy.html">Confidentialité</a>
+    <a href="/terms.html">CGU</a>
+    <a href="mailto:hello@statementconvert.app">Contact</a>
+  </div>
+</footer>
+</div><!-- /land -->
+
+<!-- ══════════ PAGE CONVERTISSEUR ══════════ -->
+<div id="up" style="display:none">
+<div class="upg">
+  <button class="bk" onclick="pg('land')">← Retour</button>
+  <h1>Convertissez votre relevé</h1>
+  <p class="sub">Déposez n'importe quel relevé — PDF, CSV, Excel ou une photo. Gratuit, sans compte.</p>
+  <div class="dz" id="dz">
+    <input type="file" id="fi" accept=".pdf,.csv,.xlsx,.xls,.jpg,.jpeg,.png" onchange="onF(this)">
+    <div class="dz-icon"><svg viewBox="0 0 24 24"><polyline points="16 16 12 12 8 16"/><line x1="12" y1="12" x2="12" y2="21"/><path d="M20.39 18.39A5 5 0 0 0 18 9h-1.26A8 8 0 1 0 3 16.3"/></svg></div>
+    <div class="dz-t">Déposez votre fichier ici</div>
+    <div class="dz-s">ou cliquez pour parcourir — max 10MB</div>
+    <div class="dz-fmts"><span class="fmt">PDF</span><span class="fmt">CSV</span><span class="fmt">Excel</span><span class="fmt">JPG</span><span class="fmt">PNG</span></div>
+  </div>
+  <div class="frow" id="frow">
+    <div class="fri"><svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg></div>
+    <div><div class="fnm" id="fn"></div><div class="fsz" id="fs"></div></div>
+    <button class="frm" onclick="cf()">×</button>
+  </div>
+  <div class="opts">
+    <div class="og">
+      <label>Langue du relevé</label>
+      <select id="ls">
+        <option value="fr">🇫🇷 Français</option>
+        <option value="en">🇬🇧 English</option>
+        <option value="es">🇪🇸 Español</option>
+        <option value="de">🇩🇪 Deutsch</option>
+        <option value="it">🇮🇹 Italiano</option>
+      </select>
+    </div>
+    <div class="og">
+      <label>Format d'export</label>
+      <select id="fmt-sel">
+        <option value="ofx">OFX (Sage / Cegid / QuickBooks)</option>
+        <option value="excel">Excel (.xlsx)</option>
+        <option value="csv">CSV (.csv)</option>
+        <option value="json">JSON (.json)</option>
+      </select>
+    </div>
+  </div>
+  <button class="cvbtn" id="cb" onclick="cv()" disabled>
+    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap:round stroke-linejoin="round"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg>
+    Convertir maintenant — gratuit
+  </button>
+  <div class="sec-row">
+    <span class="si">Chiffré AES-256</span>
+    <span class="si">Supprimé en 1h</span>
+    <span class="si">Jamais stocké</span>
+    <span class="si">Conforme RGPD</span>
+  </div>
+  <div class="pw" id="pw">
+    <div class="phdr"><span id="pl">...</span><span id="pp">0%</span></div>
+    <div class="ptr"><div class="pb" id="pb"></div></div>
+    <div class="psteps">
+      <div class="ps" id="s1"><div class="psd"></div><span>Upload sécurisé</span></div>
+      <div class="ps" id="s2"><div class="psd"></div><span>L'IA lit votre relevé</span></div>
+      <div class="ps" id="s3"><div class="psd"></div><span>Structuration</span></div>
+      <div class="ps" id="s4"><div class="psd"></div><span>Génération aperçu</span></div>
+    </div>
+  </div>
+  <div class="rsp" id="rsp">
+    <div class="rchips"><span class="rch rg" id="txn-count">✓ 8 transactions</span></div>
+    <div class="ep">
+      <div class="ep-t">Téléchargez vos données</div>
+      <div class="ebtns">
+        <button class="eb eb-c" onclick="dlCSV()"><svg viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg> CSV</button>
+        <button class="eb eb-x" onclick="dlExcel()"><svg viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg> Excel</button>
+        <button class="eb eb-j" onclick="dlJSON()"><svg viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg> JSON</button>
+        <button class="eb eb-o" onclick="dlOFX()"><svg viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg> OFX</button>
+      </div>
+    </div>
+    <div class="tw">
+      <table class="pr">
+        <thead><tr><th>#</th><th>Date</th><th>Description</th><th>Montant</th><th>Solde</th><th>Cat.</th></tr></thead>
+        <tbody id="tb"></tbody>
+      </table>
+    </div>
+  </div>
+</div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<script>
+'use strict';
+let sf=null,TX=[];
+
+function pg(id){
+  document.getElementById('land').style.display=id==='land'?'block':'none';
+  document.getElementById('up').style.display=id==='up'?'block':'none';
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+function sc(id){
+  const el=document.getElementById(id);
+  if(el){pg('land');setTimeout(()=>el.scrollIntoView({behavior:'smooth'}),60);}
+}
+
+// Scroll reveal
+const io=new IntersectionObserver(entries=>{entries.forEach(e=>{if(e.isIntersecting)e.target.classList.add('visible');});},{threshold:0.08});
+document.querySelectorAll('.reveal').forEach(r=>io.observe(r));
+
+// FAQ
+document.querySelectorAll('.faq-item').forEach(item=>{
+  item.querySelector('.faq-q').addEventListener('click',()=>item.classList.toggle('open'));
+});
+
+// Free trial
+const MAX_FREE=3;
+function getTrialCount(){return parseInt(localStorage.getItem('sc_trials')||'0');}
+function incTrialCount(){const n=getTrialCount()+1;localStorage.setItem('sc_trials',n);return n;}
+function showUpgradeModal(){
+  const m=document.createElement('div');
+  m.id='upgrade-modal';
+  m.style.cssText='position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:9999;display:flex;align-items:center;justify-content:center;padding:20px;animation:fadeIn .2s ease';
+  m.innerHTML=`<div style="background:#fff;border-radius:16px;padding:40px;max-width:440px;width:100%;text-align:center;box-shadow:0 24px 64px rgba(0,0,0,.15)">
+    <div style="font-size:.7rem;font-weight:600;color:#aaa;letter-spacing:.1em;text-transform:uppercase;margin-bottom:12px">Essai gratuit utilisé</div>
+    <div style="font-size:1.7rem;font-weight:600;letter-spacing:-.03em;margin-bottom:8px;line-height:1.2">Vous avez utilisé vos<br><em style="font-weight:300;color:#666">3 conversions gratuites.</em></div>
+    <p style="font-size:.875rem;color:#777;margin-bottom:28px;line-height:1.65">Passez à un plan payant pour continuer à convertir vos relevés bancaires.</p>
+    <div style="display:flex;flex-direction:column;gap:8px;margin-bottom:16px">
+      <button onclick="stripeCheckout('price_1TYra7RqpJ66wdpMKiwUQGaP')" style="background:#111;color:#fff;border:none;border-radius:8px;padding:12px;font-size:.875rem;font-weight:500;cursor:pointer;font-family:inherit">Pro — €49/mois <span style="opacity:.6;font-size:.78rem">Illimité</span></button>
+      <button onclick="stripeCheckout('price_1TbyW8RqpJ66wdpM49nUW5xH')" style="background:#111;color:#fff;border:none;border-radius:8px;padding:12px;font-size:.875rem;font-weight:500;cursor:pointer;font-family:inherit">Cabinet — €199/mois <span style="opacity:.6;font-size:.78rem">Équipe illimitée</span></button>
+    </div>
+    <button onclick="document.getElementById('upgrade-modal').remove()" style="background:none;border:none;color:#aaa;font-size:.78rem;cursor:pointer;font-family:inherit">Plus tard</button>
+  </div>`;
+  document.body.appendChild(m);
+}
+
+// Drag & drop
+const dz=document.getElementById('dz');
+if(dz){
+  dz.addEventListener('dragover',e=>{e.preventDefault();dz.classList.add('ov');});
+  dz.addEventListener('dragleave',()=>dz.classList.remove('ov'));
+  dz.addEventListener('drop',e=>{
+    e.preventDefault();dz.classList.remove('ov');
+    const f=e.dataTransfer.files[0];
+    if(f){const dt=new DataTransfer();dt.items.add(f);document.getElementById('fi').files=dt.files;onF(document.getElementById('fi'));}
+  });
+}
+
+const ALLOWED=['.pdf','.csv','.xlsx','.xls','.jpg','.jpeg','.png'];
+function onF(inp){
+  const f=inp.files[0];if(!f)return;
+  const ext='.'+f.name.split('.').pop().toLowerCase();
+  if(!ALLOWED.includes(ext)){notif('Format non supporté. Utilisez PDF, CSV, Excel, JPG ou PNG.',true);return;}
+  if(f.size>10*1024*1024){notif('Fichier trop lourd (max 10 MB).',true);return;}
+  sf=f;
+  document.getElementById('fn').textContent=f.name;
+  document.getElementById('fs').textContent=(f.size/1024/1024).toFixed(2)+' MB';
+  document.getElementById('frow').classList.add('show');
+  document.getElementById('cb').disabled=false;
+}
+function cf(){
+  sf=null;document.getElementById('fi').value='';
+  document.getElementById('frow').classList.remove('show');
+  document.getElementById('cb').disabled=true;
+  document.getElementById('rsp').classList.remove('show');TX=[];
+}
+
+const MIME={pdf:'application/pdf',csv:'text/csv',xls:'application/vnd.ms-excel',xlsx:'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',jpg:'image/jpeg',jpeg:'image/jpeg',png:'image/png'};
+
+let _pt=null,_pv=0;
+function startProgress(){
+  const phases=[{l:'Upload sécurisé…',e:20,s:'s1'},{l:'Lecture du relevé…',e:60,s:'s2'},{l:'Structuration…',e:88,s:'s3'},{l:'Génération aperçu…',e:96,s:'s4'}];
+  document.getElementById('pw').classList.add('show');
+  document.getElementById('rsp').classList.remove('show');
+  ['s1','s2','s3','s4'].forEach(id=>document.getElementById(id).className='ps');
+  _pv=0;let ph=0;
+  _pt=setInterval(()=>{
+    const c=phases[ph];const spd=ph<1?3:ph<2?1.2:.6;
+    _pv=Math.min(_pv+spd,c.e);
+    document.getElementById('pb').style.width=_pv+'%';
+    document.getElementById('pp').textContent=Math.round(_pv)+'%';
+    document.getElementById('pl').textContent=c.l;
+    document.getElementById(c.s).className='ps act';
+    if(_pv>=c.e&&ph<phases.length-1){document.getElementById(c.s).className='ps dn';ph++;}
+  },70);
+}
+function finishProgress(ok){
+  clearInterval(_pt);
+  const bar=document.getElementById('pb');
+  bar.style.transition='width .3s ease';bar.style.width='100%';
+  ['s1','s2','s3','s4'].forEach(id=>document.getElementById(id).className=ok?'ps dn':'ps');
+  setTimeout(()=>{document.getElementById('pw').classList.remove('show');bar.style.width='0';bar.style.transition='';},ok?500:300);
+}
+
+async function cv(){
+  if(!sf)return;
+  const btn=document.getElementById('cb');btn.disabled=true;
+  startProgress();
+  try{
+    const b64=await fileToBase64(sf);
+    const ext=sf.name.split('.').pop().toLowerCase();
+    const mime=MIME[ext]||'application/octet-stream';
+    const resp=await fetch('https://statementconvert-backend.onrender.com/convert',{
+      method:'POST',headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({file:b64,mimeType:mime,filename:sf.name})
+    });
+    const data=await resp.json();
+    if(!resp.ok||!data.ok)throw{code:data.error,message:data.message};
+    TX=data.transactions;
+    finishProgress(true);
+    setTimeout(()=>{
+      bldTbl();
+      document.getElementById('txn-count').textContent='✓ '+TX.length+' transactions';
+      document.getElementById('rsp').classList.add('show');
+      btn.disabled=false;
+      const n=incTrialCount();
+      if(n>=MAX_FREE)setTimeout(()=>showUpgradeModal(),1500);
+    },300);
+  }catch(err){
+    finishProgress(false);btn.disabled=false;
+    notif(err.message||'Erreur inattendue. Réessayez ou contactez le support.',true);
+  }
+}
+
+function fileToBase64(file){
+  return new Promise((res,rej)=>{
+    const r=new FileReader();
+    r.onload=()=>res(r.result.split(',')[1]);
+    r.onerror=()=>rej(new Error('File read failed'));
+    r.readAsDataURL(file);
+  });
+}
+
+function bldTbl(){
+  const tb=document.getElementById('tb');tb.innerHTML='';
+  TX.forEach((t,i)=>{
+    const amt=parseFloat(t.amount??t.amt)||0;const bal=t.balance??t.bal??null;const pos=amt>=0;
+    const tr=document.createElement('tr');
+    tr.innerHTML=`<td style="color:#bbb;font-size:.72rem">${i+1}</td>
+      <td contenteditable="true">${esc(t.date||'')}</td>
+      <td contenteditable="true">${esc(t.description||t.desc||'')}</td>
+      <td class="${pos?'tpos':'tneg'}" contenteditable="true">${pos?'+':'−'}${Math.abs(amt).toFixed(2)}</td>
+      <td style="color:#888;font-size:.78rem" contenteditable="true">${bal!==null?Number(bal).toFixed(2):'—'}</td>
+      <td><span class="tcat" contenteditable="true">${esc(t.category||t.cat||'')}</span></td>`;
+    tb.appendChild(tr);
+  });
+}
+function esc(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
+function getRows(){
+  return Array.from(document.querySelectorAll('#tb tr')).map(r=>{
+    const c=r.querySelectorAll('td');
+    return{num:c[0]?.textContent.trim(),date:c[1]?.textContent.trim(),desc:c[2]?.textContent.trim(),amount:c[3]?.textContent.trim(),balance:c[4]?.textContent.trim(),cat:c[5]?.textContent.trim()};
+  });
+}
+
+function dlCSV(){
+  const rows=getRows();
+  const hdr='Date;Description;Montant;Solde;Catégorie\n';
+  const body=rows.map(r=>`${r.date};"${(r.desc||'').replace(/"/g,'""')}";${r.amount};${r.balance};${r.cat}`).join('\n');
+  dl('\uFEFF'+hdr+body,'releve.csv','text/csv;charset=utf-8');notif('✓ CSV téléchargé');
+}
+function dlExcel(){
+  if(typeof XLSX!=='undefined'){
+    const rows=getRows();
+    const ws=XLSX.utils.aoa_to_sheet([['Date','Description','Montant','Solde','Catégorie'],...rows.map(r=>[r.date,r.desc,r.amount,r.balance,r.cat])]);
+    ws['!cols']=[{wch:12},{wch:40},{wch:12},{wch:14},{wch:16}];
+    const wb=XLSX.utils.book_new();XLSX.utils.book_append_sheet(wb,ws,'Transactions');
+    XLSX.writeFile(wb,'releve.xlsx');notif('✓ Excel téléchargé');
+  }
+}
+function dlJSON(){
+  const data={exported_at:new Date().toISOString(),source:'StatementConvert',transactions:getRows().map(r=>({date:r.date,description:r.desc,amount:r.amount,balance:r.balance,category:r.cat}))};
+  dl(JSON.stringify(data,null,2),'releve.json','application/json');notif('✓ JSON téléchargé');
+}
+function dlOFX(){
+  const rows=getRows();const now=new Date().toISOString().replace(/[-:T.]/g,'').slice(0,14);
+  const stmts=rows.map((r,i)=>`<STMTTRN><TRNTYPE>${r.amount.startsWith('+')?'CREDIT':'DEBIT'}<DTPOSTED>${now}<TRNAMT>${r.amount.replace(/[^0-9.\-]/g,'')}<FITID>${i+1}<MEMO>${r.desc}</STMTTRN>`).join('\n');
+  dl(`OFXHEADER:100\nDATA:OFXSGML\nVERSION:102\n\n<OFX><BANKMSGSRSV1><STMTTRNRS><STMTRS><CURDEF>EUR<BANKTRANLIST>\n${stmts}\n</BANKTRANLIST></STMTRS></STMTTRNRS></BANKMSGSRSV1></OFX>`,'releve.ofx','application/x-ofx');
+  notif('✓ OFX téléchargé');
+}
+function dl(content,filename,mime){
+  const blob=new Blob([content],{type:mime});const url=URL.createObjectURL(blob);
+  const a=document.createElement('a');a.href=url;a.download=filename;
+  document.body.appendChild(a);a.click();document.body.removeChild(a);
+  setTimeout(()=>URL.revokeObjectURL(url),1000);
+}
+function notif(msg,err=false){
+  document.querySelectorAll('.notif').forEach(n=>n.remove());
+  const n=document.createElement('div');n.className='notif '+(err?'notif-err':'notif-ok');n.textContent=msg;
+  document.body.appendChild(n);n.addEventListener('click',()=>n.remove());
+  setTimeout(()=>n.remove(),err?6000:3000);
+}
+
+const params=new URLSearchParams(window.location.search);
+if(params.get('payment')==='success')notif('✓ Paiement réussi — bienvenue !');
+</script>
+
+<script src="https://js.stripe.com/v3/" defer></script>
+<script defer>
+window.addEventListener('load',()=>{
+  window.stripeCheckout=async function(priceId){
+    const btn=document.querySelector(`[onclick="stripeCheckout('${priceId}')"]`);
+    const orig=btn.innerHTML;btn.textContent='Redirection…';btn.disabled=true;
+    try{
+      const resp=await fetch('https://statementconvert-backend.onrender.com/create-checkout-session',{
+        method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({priceId})
+      });
+      const data=await resp.json();
+      if(data.url){window.location.href=data.url;}else{throw new Error('No URL');}
+    }catch(e){
+      notif('Erreur — veuillez réessayer',true);btn.innerHTML=orig;btn.disabled=false;
+    }
+  };
+});
+</script>
+</body>
+</html>
