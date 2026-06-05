@@ -7,6 +7,7 @@
 <meta name="description" content="Convertissez vos relevés bancaires PDF en CSV, Excel ou OFX en moins de 10 secondes. Compatible Sage, Cegid, Pennylane. Gratuit pour essayer.">
 <link rel="canonical" href="https://statementconvert.netlify.app/">
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
 html{scroll-behavior:smooth}
@@ -20,21 +21,24 @@ nav{position:fixed;top:0;left:0;right:0;z-index:100;display:flex;align-items:cen
 .nav-links{display:flex;gap:32px;list-style:none}
 .nav-links a{font-size:.85rem;color:#666;text-decoration:none;transition:color .15s;cursor:pointer}
 .nav-links a:hover{color:#111}
-.nav-cta{background:#111;color:#fff!important;font-size:.82rem!important;font-weight:500!important;padding:7px 16px;border-radius:7px;text-decoration:none!important;transition:opacity .15s;cursor:pointer;border:none;font-family:inherit}
+.nav-right{display:flex;align-items:center;gap:10px}
+.nav-account-btn{background:none;border:1px solid #e0e0e0;color:#444;font-size:.82rem;font-weight:500;padding:6px 14px;border-radius:7px;cursor:pointer;font-family:inherit;transition:all .15s}
+.nav-account-btn:hover{border-color:#111;color:#111}
+.nav-cta{background:#111;color:#fff;font-size:.82rem;font-weight:500;padding:7px 16px;border-radius:7px;cursor:pointer;border:none;font-family:inherit;transition:opacity .15s}
 .nav-cta:hover{opacity:.8}
+hr{border:none;border-top:1px solid #f0f0f0}
 .hero{padding:120px 40px 80px;max-width:760px;margin:0 auto;text-align:center}
-.hero-tag{display:inline-block;font-size:.75rem;font-weight:500;color:#666;background:#f5f5f5;border:1px solid #e8e8e8;padding:4px 12px;border-radius:100px;margin-bottom:28px;letter-spacing:.01em}
+.hero-tag{display:inline-block;font-size:.75rem;font-weight:500;color:#666;background:#f5f5f5;border:1px solid #e8e8e8;padding:4px 12px;border-radius:100px;margin-bottom:28px}
 .hero h1{font-size:clamp(2rem,5vw,3.2rem);font-weight:600;letter-spacing:-.04em;line-height:1.1;color:#111;margin-bottom:20px}
 .hero h1 em{font-style:italic;font-weight:300;color:#444}
 .hero p{font-size:1.05rem;color:#666;line-height:1.7;max-width:520px;margin:0 auto 36px}
 .hero-actions{display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin-bottom:40px}
-.btn-dark{background:#111;color:#fff;font-size:.875rem;font-weight:500;padding:11px 22px;border-radius:9px;text-decoration:none;transition:opacity .15s;cursor:pointer;border:none;font-family:inherit}
+.btn-dark{background:#111;color:#fff;font-size:.875rem;font-weight:500;padding:11px 22px;border-radius:9px;cursor:pointer;border:none;font-family:inherit;transition:opacity .15s}
 .btn-dark:hover{opacity:.8}
-.btn-ghost{background:transparent;color:#444;font-size:.875rem;padding:11px 22px;border-radius:9px;text-decoration:none;border:1px solid #e0e0e0;transition:border-color .15s;cursor:pointer;font-family:inherit}
+.btn-ghost{background:transparent;color:#444;font-size:.875rem;padding:11px 22px;border-radius:9px;border:1px solid #e0e0e0;cursor:pointer;font-family:inherit;transition:border-color .15s}
 .btn-ghost:hover{border-color:#aaa}
 .trust-badges{display:flex;gap:20px;justify-content:center;flex-wrap:wrap}
 .trust-badge{display:flex;align-items:center;gap:6px;font-size:.78rem;color:#999}
-hr{border:none;border-top:1px solid #f0f0f0}
 .section{padding:80px 40px;max-width:860px;margin:0 auto}
 .section-label{font-size:.72rem;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:#999;margin-bottom:12px}
 .section h2{font-size:clamp(1.6rem,3.5vw,2.4rem);font-weight:600;letter-spacing:-.03em;line-height:1.15;color:#111;margin-bottom:16px}
@@ -47,7 +51,7 @@ hr{border:none;border-top:1px solid #f0f0f0}
 .pain-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:1px;background:#ebebeb;border:1px solid #ebebeb;border-radius:14px;overflow:hidden}
 .pain-card{background:#fff;padding:28px}
 .pain-card .icon{font-size:1.2rem;margin-bottom:12px}
-.pain-card h3{font-size:.9rem;font-weight:600;color:#111;margin-bottom:6px;letter-spacing:-.01em}
+.pain-card h3{font-size:.9rem;font-weight:600;color:#111;margin-bottom:6px}
 .pain-card p{font-size:.83rem;color:#888;line-height:1.6}
 .ba-grid{display:grid;grid-template-columns:1fr 1fr;gap:1px;background:#ebebeb;border:1px solid #ebebeb;border-radius:14px;overflow:hidden}
 .ba-col{padding:32px;background:#fff}
@@ -64,14 +68,14 @@ hr{border:none;border-top:1px solid #f0f0f0}
 .steps{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:1px;background:#ebebeb;border:1px solid #ebebeb;border-radius:14px;overflow:hidden}
 .step{background:#fff;padding:28px}
 .step-num{font-size:.72rem;font-weight:600;color:#ccc;letter-spacing:.05em;margin-bottom:16px}
-.step h3{font-size:.9rem;font-weight:600;color:#111;margin-bottom:8px;letter-spacing:-.01em}
+.step h3{font-size:.9rem;font-weight:600;color:#111;margin-bottom:8px}
 .step p{font-size:.83rem;color:#888;line-height:1.6}
 .integrations-wrap{display:flex;flex-wrap:wrap;gap:8px}
 .integ-pill{display:flex;align-items:center;gap:7px;background:#fafafa;border:1px solid #e8e8e8;border-radius:8px;padding:8px 14px;font-size:.82rem;color:#444;font-weight:500}
 .dot-green{width:7px;height:7px;background:#16a37f;border-radius:50%;flex-shrink:0}
 .sec-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:1px;background:#ebebeb;border:1px solid #ebebeb;border-radius:14px;overflow:hidden}
 .sec-item{background:#fff;padding:28px}
-.sec-item .num{font-size:.72rem;font-weight:600;color:#ccc;margin-bottom:12px;letter-spacing:.04em}
+.sec-item .num{font-size:.72rem;font-weight:600;color:#ccc;margin-bottom:12px}
 .sec-item h4{font-size:.88rem;font-weight:600;color:#111;margin-bottom:6px}
 .sec-item p{font-size:.8rem;color:#888;line-height:1.6}
 .pricing-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px;align-items:start}
@@ -88,7 +92,7 @@ hr{border:none;border-top:1px solid #f0f0f0}
 .plan-feat{list-style:none;margin-bottom:22px}
 .plan-feat li{font-size:.82rem;color:#666;padding:5px 0;display:flex;align-items:flex-start;gap:8px}
 .plan-feat li::before{content:'–';color:#bbb;flex-shrink:0}
-.plan-btn{display:block;text-align:center;padding:10px;border-radius:8px;font-size:.85rem;font-weight:500;text-decoration:none;transition:opacity .15s;cursor:pointer;border:none;font-family:inherit;width:100%}
+.plan-btn{display:block;text-align:center;padding:10px;border-radius:8px;font-size:.85rem;font-weight:500;cursor:pointer;border:none;font-family:inherit;width:100%;transition:opacity .15s}
 .plan.featured .plan-btn{background:#111;color:#fff}
 .plan:not(.featured) .plan-btn{background:#f5f5f5;color:#333}
 .plan-btn:hover{opacity:.75}
@@ -96,20 +100,22 @@ hr{border:none;border-top:1px solid #f0f0f0}
 .faq{border-top:1px solid #f0f0f0}
 .faq-item{border-bottom:1px solid #f0f0f0;cursor:pointer}
 .faq-q{display:flex;justify-content:space-between;align-items:center;padding:20px 0;font-size:.9rem;font-weight:500;color:#111;gap:16px;user-select:none}
-.faq-toggle{font-size:1.1rem;color:#bbb;flex-shrink:0;transition:transform .2s;line-height:1}
+.faq-toggle{font-size:1.1rem;color:#bbb;flex-shrink:0;transition:transform .2s}
 .faq-item.open .faq-toggle{transform:rotate(45deg);color:#666}
 .faq-a{font-size:.86rem;color:#777;line-height:1.7;max-height:0;overflow:hidden;transition:max-height .3s ease,padding .3s}
 .faq-item.open .faq-a{max-height:250px;padding-bottom:20px}
 .final{text-align:center;padding:80px 40px 100px;max-width:600px;margin:0 auto}
-.final h2{font-size:clamp(1.8rem,4vw,2.6rem);font-weight:600;letter-spacing:-.04em;line-height:1.15;color:#111;margin-bottom:14px}
+.final h2{font-size:clamp(1.8rem,4vw,2.6rem);font-weight:600;letter-spacing:-.04em;line-height:1.15;margin-bottom:14px}
 .final h2 em{font-style:italic;font-weight:300;color:#555}
 .final p{font-size:.95rem;color:#888;margin-bottom:28px}
 footer{border-top:1px solid #f0f0f0;padding:28px 40px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px}
-footer .footer-logo{font-size:.88rem;font-weight:600;color:#111;text-decoration:none;letter-spacing:-.02em;cursor:pointer}
+footer .footer-logo{font-size:.88rem;font-weight:600;color:#111;cursor:pointer}
 footer p{font-size:.78rem;color:#bbb}
 footer .footer-links{display:flex;gap:20px}
 footer .footer-links a{font-size:.78rem;color:#bbb;text-decoration:none;transition:color .15s}
 footer .footer-links a:hover{color:#555}
+
+/* UPLOAD PAGE */
 .upg{max-width:560px;margin:0 auto;padding:90px 40px 80px}
 .bk{display:inline-flex;align-items:center;gap:5px;color:#aaa;font-size:.78rem;cursor:pointer;border:none;background:none;font-family:inherit;margin-bottom:32px;transition:color .15s}
 .bk:hover{color:#111}
@@ -177,6 +183,51 @@ td[contenteditable]:focus{outline:none;background:#eff6ff}
 .notif{position:fixed;top:68px;left:50%;transform:translateX(-50%);padding:10px 22px;border-radius:7px;font-size:.82rem;z-index:9999;white-space:nowrap;animation:fadeIn .25s ease}
 .notif-ok{background:#111;color:#fff}
 .notif-err{background:#dc2626;color:#fff}
+
+/* MODAL */
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:9999;display:flex;align-items:center;justify-content:center;padding:20px;animation:fadeIn .2s ease}
+.modal-box{background:#fff;border-radius:16px;padding:40px;max-width:420px;width:100%;box-shadow:0 24px 64px rgba(0,0,0,.15)}
+.modal-title{font-size:1.4rem;font-weight:600;letter-spacing:-.03em;margin-bottom:8px}
+.modal-sub{font-size:.85rem;color:#777;margin-bottom:24px;line-height:1.6}
+.modal-tabs{display:flex;gap:0;margin-bottom:24px;border:1px solid #e8e8e8;border-radius:8px;overflow:hidden}
+.modal-tab{flex:1;padding:9px;font-size:.85rem;font-weight:500;cursor:pointer;border:none;background:#fff;font-family:inherit;transition:all .15s;color:#777}
+.modal-tab.active{background:#111;color:#fff}
+.modal-input{width:100%;padding:11px 14px;border:1px solid #e0e0e0;border-radius:8px;font-size:.875rem;font-family:inherit;outline:none;margin-bottom:10px;transition:border-color .15s}
+.modal-input:focus{border-color:#111}
+.modal-btn{width:100%;background:#111;color:#fff;border:none;border-radius:8px;padding:12px;font-size:.875rem;font-weight:500;cursor:pointer;font-family:inherit;margin-bottom:10px;transition:opacity .15s}
+.modal-btn:hover{opacity:.8}
+.modal-btn:disabled{opacity:.4;cursor:not-allowed}
+.modal-skip{background:none;border:none;color:#aaa;font-size:.78rem;cursor:pointer;font-family:inherit;width:100%;text-align:center}
+.modal-skip:hover{color:#666}
+.modal-error{font-size:.8rem;color:#dc2626;margin-bottom:10px;display:none}
+
+/* ACCOUNT PAGE */
+.acc-page{max-width:600px;margin:0 auto;padding:90px 40px 80px}
+.acc-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:32px;flex-wrap:wrap;gap:12px}
+.acc-header h1{font-size:1.6rem;font-weight:600;letter-spacing:-.03em}
+.acc-logout{background:none;border:1px solid #e0e0e0;color:#666;font-size:.8rem;padding:6px 14px;border-radius:7px;cursor:pointer;font-family:inherit;transition:all .15s}
+.acc-logout:hover{border-color:#111;color:#111}
+.acc-card{border:1px solid #e8e8e8;border-radius:14px;padding:24px;margin-bottom:16px;background:#fff}
+.acc-card-title{font-size:.72rem;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:#aaa;margin-bottom:16px}
+.conv-counter{display:flex;align-items:center;gap:16px}
+.conv-num{font-size:2.5rem;font-weight:600;letter-spacing:-.04em;color:#111}
+.conv-label{font-size:.85rem;color:#777;line-height:1.5}
+.conv-bar{height:6px;background:#f0f0f0;border-radius:3px;margin-top:12px;overflow:hidden}
+.conv-fill{height:100%;background:#111;border-radius:3px;transition:width .3s}
+.conv-fill.low{background:#dc2626}
+.upgrade-banner{background:#111;border-radius:14px;padding:24px;margin-bottom:16px;color:#fff;display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap}
+.upgrade-banner h3{font-size:1rem;font-weight:600;margin-bottom:4px}
+.upgrade-banner p{font-size:.83rem;color:rgba(255,255,255,.6);line-height:1.5}
+.upgrade-btn{background:#fff;color:#111;border:none;border-radius:8px;padding:9px 18px;font-size:.85rem;font-weight:600;cursor:pointer;font-family:inherit;white-space:nowrap;transition:opacity .15s;flex-shrink:0}
+.upgrade-btn:hover{opacity:.85}
+.acc-history{list-style:none}
+.acc-history li{display:flex;align-items:center;justify-content:space-between;padding:12px 0;border-bottom:1px solid #f5f5f5;font-size:.85rem}
+.acc-history li:last-child{border:none}
+.acc-history .h-name{color:#333;font-weight:500}
+.acc-history .h-date{color:#aaa;font-size:.78rem}
+.acc-history .h-count{font-size:.78rem;color:#16a37f;background:#ecfdf5;padding:2px 8px;border-radius:4px}
+.acc-empty{text-align:center;padding:32px;color:#aaa;font-size:.85rem}
+
 @media(max-width:680px){
   nav{padding:0 20px}.nav-links{display:none}
   .section{padding:60px 20px}.hero{padding:100px 20px 60px}
@@ -185,6 +236,7 @@ td[contenteditable]:focus{outline:none;background:#eff6ff}
   .ba-grid{grid-template-columns:1fr}
   .opts{grid-template-columns:1fr}
   .upg{padding:90px 20px 60px}
+  .acc-page{padding:90px 20px 60px}
 }
 </style>
 </head>
@@ -195,22 +247,23 @@ td[contenteditable]:focus{outline:none;background:#eff6ff}
   <ul class="nav-links">
     <li><a onclick="sc('problem')">Le problème</a></li>
     <li><a onclick="sc('how')">Comment ça marche</a></li>
-    <li><a onclick="sc('integrations')">Intégrations</a></li>
     <li><a onclick="sc('pricing')">Tarifs</a></li>
     <li><a onclick="sc('faq')">FAQ</a></li>
   </ul>
-  <button class="nav-cta" onclick="pg('up')">Essai gratuit</button>
+  <div class="nav-right">
+    <button class="nav-account-btn" id="nav-account-btn" onclick="handleNavAccount()" style="display:none">Mon compte</button>
+    <button class="nav-cta" onclick="pg('up')">Essai gratuit</button>
+  </div>
 </nav>
 
 <!-- LANDING PAGE -->
 <div id="land">
-
 <section class="hero">
   <div class="hero-tag">Pour les experts-comptables &amp; collaborateurs</div>
   <h1>Vos clients envoient des PDF.<br><em>Convertissez-les en 10 secondes.</em></h1>
   <p>Fini la ressaisie manuelle. StatementConvert transforme n'importe quel relevé bancaire PDF en CSV ou Excel importable directement dans Sage, Cegid, Pennylane ou EBP.</p>
   <div class="hero-actions">
-    <button class="btn-dark" onclick="pg('up')">Tester gratuitement — sans compte</button>
+    <button class="btn-dark" onclick="pg('up')">Tester gratuitement — sans carte</button>
     <button class="btn-ghost" onclick="sc('how')">Voir comment ça marche</button>
   </div>
   <div class="trust-badges">
@@ -220,27 +273,23 @@ td[contenteditable]:focus{outline:none;background:#eff6ff}
     <span class="trust-badge"><svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>Banques françaises supportées</span>
   </div>
 </section>
-
 <hr>
-
 <section class="section reveal" id="problem">
   <div class="section-label">Le problème</div>
   <h2>Combien d'heures perdez-vous<br><em>sur les relevés chaque semaine ?</em></h2>
-  <p class="section-sub">Pour chaque client, le même rituel : télécharger le PDF, ressaisir les lignes, reformater dans Excel, corriger les erreurs. Multiplié par 30, 50, 100 clients.</p>
+  <p class="section-sub">Pour chaque client, le même rituel : télécharger le PDF, ressaisir les lignes, reformater dans Excel, corriger les erreurs.</p>
   <div class="stat-box">
     <div class="stat-num">4,2h</div>
-    <div class="stat-text">C'est le temps moyen perdu chaque semaine par un collaborateur comptable à <strong>ressaisir manuellement des données bancaires</strong> dans ses outils — avec des erreurs dans 12 % des cas.</div>
+    <div class="stat-text">C'est le temps moyen perdu chaque semaine par un collaborateur comptable à <strong>ressaisir manuellement des données bancaires</strong> — avec des erreurs dans 12% des cas.</div>
   </div>
   <div class="pain-grid">
-    <div class="pain-card"><div class="icon">📄</div><h3>PDFs non structurés</h3><p>Chaque banque a son propre format. BNP, Société Générale, LCL, CIC — aucun n'exporte de la même façon.</p></div>
-    <div class="pain-card"><div class="icon">⏱️</div><h3>Ressaisie chronophage</h3><p>Copier-coller, corriger les décimales, reformater les dates — sur 50 clients, c'est des journées entières par mois.</p></div>
-    <div class="pain-card"><div class="icon">⚠️</div><h3>Erreurs de saisie</h3><p>Une transaction manquée, un montant décalé — des erreurs qui coûtent du temps à détecter et corriger.</p></div>
+    <div class="pain-card"><div class="icon">📄</div><h3>PDFs non structurés</h3><p>Chaque banque a son propre format. BNP, SG, LCL, CIC — aucun n'exporte de la même façon.</p></div>
+    <div class="pain-card"><div class="icon">⏱️</div><h3>Ressaisie chronophage</h3><p>Copier-coller, corriger les décimales, reformater les dates — sur 50 clients, c'est des journées entières.</p></div>
+    <div class="pain-card"><div class="icon">⚠️</div><h3>Erreurs de saisie</h3><p>Une transaction manquée, un montant décalé — des erreurs qui coûtent du temps à détecter.</p></div>
     <div class="pain-card"><div class="icon">🔄</div><h3>Pas de format standard</h3><p>Vos logiciels attendent du CSV ou OFX. Les banques livrent du PDF. Il manque toujours un outil entre les deux.</p></div>
   </div>
 </section>
-
 <hr>
-
 <section class="section reveal">
   <div class="section-label">Avant / Après</div>
   <h2>Ce que ça change<br><em>concrètement pour votre cabinet</em></h2>
@@ -252,7 +301,7 @@ td[contenteditable]:focus{outline:none;background:#eff6ff}
       <div class="ba-item"><span class="ba-marker">✕</span>Corriger les décimales et reformater les dates</div>
       <div class="ba-item"><span class="ba-marker">✕</span>Vérifier qu'aucune transaction ne manque</div>
       <div class="ba-item"><span class="ba-marker">✕</span>Importer dans Sage — erreurs de format</div>
-      <div class="ba-item"><span class="ba-marker">✕</span>Recommencer pour chaque client</div>
+      <div class="ba-item"><span class="ba-marker">✕</span>45 minutes minimum par relevé</div>
     </div>
     <div class="ba-col after">
       <div class="ba-heading"><span>✓</span> Avec StatementConvert</div>
@@ -265,22 +314,18 @@ td[contenteditable]:focus{outline:none;background:#eff6ff}
     </div>
   </div>
 </section>
-
 <hr>
-
 <section class="section reveal" id="how">
   <div class="section-label">Comment ça marche</div>
   <h2>Trois étapes.<br><em>Zéro ressaisie.</em></h2>
   <p class="section-sub">Conçu pour s'intégrer dans votre workflow sans formation ni configuration.</p>
   <div class="steps">
-    <div class="step"><div class="step-num">01</div><h3>Déposez le relevé</h3><p>PDF numérique, PDF scanné ou photo — peu importe la banque. BNP Paribas, Société Générale, LCL, CIC, Crédit Agricole, Boursorama, Qonto et plus.</p></div>
-    <div class="step"><div class="step-num">02</div><h3>Extraction automatique</h3><p>Notre IA lit et structure chaque transaction en moins de 10 secondes : date, libellé, montant, solde. Sans règles, sans templates, sans configuration.</p></div>
-    <div class="step"><div class="step-num">03</div><h3>Vérifiez et exportez</h3><p>Prévisualisez toutes les transactions. Cliquez sur n'importe quelle cellule pour corriger. Exportez en CSV, Excel, JSON ou OFX — prêt pour votre logiciel.</p></div>
+    <div class="step"><div class="step-num">01</div><h3>Déposez le relevé</h3><p>PDF numérique, PDF scanné ou photo — peu importe la banque. BNP, SG, LCL, CIC, CA, Boursorama, Qonto et plus.</p></div>
+    <div class="step"><div class="step-num">02</div><h3>Extraction automatique</h3><p>Notre IA lit et structure chaque transaction en moins de 10 secondes : date, libellé, montant, solde.</p></div>
+    <div class="step"><div class="step-num">03</div><h3>Vérifiez et exportez</h3><p>Prévisualisez toutes les transactions. Cliquez sur n'importe quelle cellule pour corriger. Exportez en CSV, Excel, JSON ou OFX.</p></div>
   </div>
 </section>
-
 <hr>
-
 <section class="section reveal" id="integrations">
   <div class="section-label">Intégrations</div>
   <h2>Compatible avec vos<br><em>logiciels comptables</em></h2>
@@ -292,28 +337,22 @@ td[contenteditable]:focus{outline:none;background:#eff6ff}
     <div class="integ-pill"><span class="dot-green"></span>EBP</div>
     <div class="integ-pill"><span class="dot-green"></span>QuickBooks</div>
     <div class="integ-pill"><span class="dot-green"></span>Xero</div>
-    <div class="integ-pill"><span class="dot-green"></span>FEC Manager</div>
     <div class="integ-pill"><span class="dot-green"></span>Excel / Google Sheets</div>
     <div class="integ-pill"><span class="dot-green"></span>Tout outil acceptant CSV</div>
   </div>
 </section>
-
 <hr>
-
 <section class="section reveal">
   <div class="section-label">Sécurité &amp; RGPD</div>
   <h2>Vos données clients<br><em>restent sous contrôle</em></h2>
-  <p class="section-sub">Les relevés bancaires sont des données sensibles. StatementConvert est conçu pour répondre aux obligations de confidentialité des cabinets d'expertise comptable.</p>
   <div class="sec-grid">
-    <div class="sec-item"><div class="num">01</div><h4>Chiffrement AES-256</h4><p>Chaque fichier est chiffré en transit avec AES-256 — le standard des institutions financières.</p></div>
-    <div class="sec-item"><div class="num">02</div><h4>Suppression en 1h</h4><p>Votre fichier est automatiquement et définitivement supprimé dans l'heure suivant la conversion. Aucune exception.</p></div>
-    <div class="sec-item"><div class="num">03</div><h4>Conforme RGPD</h4><p>Aucun compte requis pour tester. Zéro donnée personnelle collectée en mode gratuit.</p></div>
-    <div class="sec-item"><div class="num">04</div><h4>Données jamais revendues</h4><p>Nous ne lisons pas, ne stockons pas et ne revendons aucune donnée financière de vos clients.</p></div>
+    <div class="sec-item"><div class="num">01</div><h4>Chiffrement AES-256</h4><p>Chaque fichier est chiffré en transit avec AES-256.</p></div>
+    <div class="sec-item"><div class="num">02</div><h4>Suppression en 1h</h4><p>Votre fichier est automatiquement supprimé dans l'heure.</p></div>
+    <div class="sec-item"><div class="num">03</div><h4>Conforme RGPD</h4><p>Zéro donnée personnelle collectée en mode gratuit.</p></div>
+    <div class="sec-item"><div class="num">04</div><h4>Données jamais revendues</h4><p>Nous ne lisons pas, ne stockons pas et ne revendons aucune donnée.</p></div>
   </div>
 </section>
-
 <hr>
-
 <section class="section reveal" id="pricing">
   <div class="section-label">Tarifs</div>
   <h2>Commencez gratuitement.<br><em>Payez seulement quand vous en avez besoin.</em></h2>
@@ -324,12 +363,7 @@ td[contenteditable]:focus{outline:none;background:#eff6ff}
       <div class="plan-price"><sup>€</sup>0<sub>/mois</sub></div>
       <div class="plan-desc">Pour tester le workflow sans engagement.</div>
       <hr class="plan-sep">
-      <ul class="plan-feat">
-        <li>3 conversions incluses</li>
-        <li>PDF, CSV, image</li>
-        <li>Export CSV &amp; Excel</li>
-        <li>Aperçu &amp; édition</li>
-      </ul>
+      <ul class="plan-feat"><li>3 conversions incluses</li><li>PDF, CSV, image</li><li>Export CSV &amp; Excel</li><li>Aperçu &amp; édition</li></ul>
       <button class="plan-btn" onclick="pg('up')">Tester gratuitement</button>
     </div>
     <div class="plan featured">
@@ -338,13 +372,7 @@ td[contenteditable]:focus{outline:none;background:#eff6ff}
       <div class="plan-price"><sup>€</sup>49<sub>/mois</sub></div>
       <div class="plan-desc">Pour le comptable solo avec volume régulier.</div>
       <hr class="plan-sep">
-      <ul class="plan-feat">
-        <li>Conversions illimitées</li>
-        <li>CSV, Excel, JSON, OFX</li>
-        <li>Historique complet</li>
-        <li>Traitement prioritaire</li>
-        <li>Support email</li>
-      </ul>
+      <ul class="plan-feat"><li>Conversions illimitées</li><li>CSV, Excel, JSON, OFX</li><li>Historique complet</li><li>Support email</li></ul>
       <button class="plan-btn" onclick="stripeCheckout('price_1TYra7RqpJ66wdpMKiwUQGaP')">Démarrer en Pro</button>
     </div>
     <div class="plan">
@@ -352,36 +380,24 @@ td[contenteditable]:focus{outline:none;background:#eff6ff}
       <div class="plan-price"><sup>€</sup>199<sub>/mois</sub></div>
       <div class="plan-desc">Pour un cabinet avec plusieurs collaborateurs.</div>
       <hr class="plan-sep">
-      <ul class="plan-feat">
-        <li>Tout le plan Pro</li>
-        <li>Utilisateurs illimités</li>
-        <li>Historique partagé équipe</li>
-        <li>Support prioritaire</li>
-        <li>Accès anticipé nouveautés</li>
-      </ul>
+      <ul class="plan-feat"><li>Tout le plan Pro</li><li>Utilisateurs illimités</li><li>Historique partagé équipe</li><li>Support prioritaire</li></ul>
       <button class="plan-btn" onclick="stripeCheckout('price_1TeFDrRqpJ66wdpMZJVcgyJS')">Choisir Cabinet</button>
     </div>
   </div>
-  <p class="pricing-note">⚠ Tarifs de lancement susceptibles d'évoluer. Remboursement sous 7 jours si l'outil ne fonctionne pas pour votre cas d'usage.</p>
+  <p class="pricing-note">⚠ Tarifs de lancement susceptibles d'évoluer. Remboursement sous 7 jours.</p>
 </section>
-
 <hr>
-
 <section class="section reveal" id="faq">
   <div class="section-label">FAQ</div>
   <h2>Questions fréquentes<br><em>des experts-comptables</em></h2>
   <div class="faq" style="margin-top:40px">
-    <div class="faq-item"><div class="faq-q">Est-ce que ça fonctionne avec toutes les banques françaises ?<span class="faq-toggle">+</span></div><div class="faq-a">Oui. StatementConvert supporte les PDFs de toutes les grandes banques françaises — BNP Paribas, Société Générale, LCL, CIC, Crédit Agricole, La Banque Postale, Caisse d'Épargne, Boursorama, Revolut Business, Qonto, et plus encore.</div></div>
-    <div class="faq-item"><div class="faq-q">Les données financières de mes clients sont-elles en sécurité ?<span class="faq-toggle">+</span></div><div class="faq-a">Absolument. Chaque fichier est chiffré en transit (AES-256) et supprimé définitivement dans l'heure suivant la conversion. Nous ne lisons pas, ne stockons pas et ne revendons aucune donnée.</div></div>
-    <div class="faq-item"><div class="faq-q">Le fichier exporté est-il directement importable dans Sage ou Cegid ?<span class="faq-toggle">+</span></div><div class="faq-a">Oui. L'export OFX est conçu pour un import direct dans Sage, QuickBooks et Xero. L'export CSV est compatible avec Cegid, Pennylane, EBP et tout logiciel acceptant les imports CSV.</div></div>
-    <div class="faq-item"><div class="faq-q">Que se passe-t-il si la conversion comporte des erreurs ?<span class="faq-toggle">+</span></div><div class="faq-a">Avant tout téléchargement, vous voyez un aperçu complet de toutes les transactions. Chaque cellule est éditable. Si le résultat n'est pas satisfaisant, vous êtes remboursé sous 7 jours.</div></div>
-    <div class="faq-item"><div class="faq-q">Est-ce que ça fonctionne avec des PDFs scannés ou des photos ?<span class="faq-toggle">+</span></div><div class="faq-a">Oui. Notre moteur extrait les données depuis des documents scannés ou photographiés. La précision est légèrement inférieure sur des scans de mauvaise qualité — c'est pourquoi l'étape de prévisualisation éditable est particulièrement utile.</div></div>
-    <div class="faq-item"><div class="faq-q">Puis-je traiter plusieurs relevés à la suite pour un même client ?<span class="faq-toggle">+</span></div><div class="faq-a">Oui. Avec les plans Pro et Cabinet, vous pouvez convertir un volume illimité de relevés. Le plan Cabinet inclut un historique partagé entre tous les collaborateurs.</div></div>
+    <div class="faq-item"><div class="faq-q">Est-ce que ça fonctionne avec toutes les banques françaises ?<span class="faq-toggle">+</span></div><div class="faq-a">Oui. StatementConvert supporte les PDFs de toutes les grandes banques françaises — BNP Paribas, Société Générale, LCL, CIC, Crédit Agricole, Boursorama, Revolut Business, Qonto, et plus encore.</div></div>
+    <div class="faq-item"><div class="faq-q">Les données financières de mes clients sont-elles en sécurité ?<span class="faq-toggle">+</span></div><div class="faq-a">Absolument. Chaque fichier est chiffré en transit (AES-256) et supprimé définitivement dans l'heure suivant la conversion.</div></div>
+    <div class="faq-item"><div class="faq-q">Le fichier exporté est-il directement importable dans Sage ou Cegid ?<span class="faq-toggle">+</span></div><div class="faq-a">Oui. L'export OFX est conçu pour un import direct dans Sage, QuickBooks et Xero. L'export CSV est compatible avec Cegid, Pennylane, EBP.</div></div>
+    <div class="faq-item"><div class="faq-q">Que se passe-t-il si la conversion comporte des erreurs ?<span class="faq-toggle">+</span></div><div class="faq-a">Avant tout téléchargement, vous voyez un aperçu complet. Chaque cellule est éditable. Remboursement sous 7 jours si le résultat n'est pas satisfaisant.</div></div>
   </div>
 </section>
-
 <hr>
-
 <section class="final reveal">
   <h2>Arrêtez de copier-coller<br><em>depuis des PDF.</em></h2>
   <p>Testez gratuitement — sans compte, sans carte bancaire.</p>
@@ -389,13 +405,7 @@ td[contenteditable]:focus{outline:none;background:#eff6ff}
     <button class="btn-dark" onclick="pg('up')">Convertir mon premier relevé →</button>
     <button class="btn-ghost" onclick="sc('pricing')">Voir les tarifs</button>
   </div>
-  <div class="trust-badges" style="margin-top:20px">
-    <span class="trust-badge"><svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>Sans inscription requise</span>
-    <span class="trust-badge"><svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>Fichiers supprimés en 1h</span>
-    <span class="trust-badge"><svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>Conforme RGPD</span>
-  </div>
 </section>
-
 <footer>
   <span class="footer-logo" onclick="pg('land')">StatementConvert</span>
   <p>© 2026 StatementConvert · Fait pour les experts-comptables français</p>
@@ -412,7 +422,7 @@ td[contenteditable]:focus{outline:none;background:#eff6ff}
 <div class="upg">
   <button class="bk" onclick="pg('land')">← Retour</button>
   <h1>Convertissez votre relevé</h1>
-  <p class="sub">Déposez n'importe quel relevé — PDF, CSV, Excel ou une photo. Gratuit, sans compte.</p>
+  <p class="sub">Déposez n'importe quel relevé — PDF, CSV, Excel ou une photo.</p>
   <div class="dz" id="dz">
     <input type="file" id="fi" accept=".pdf,.csv,.xlsx,.xls,.jpg,.jpeg,.png" onchange="onF(this)">
     <div class="dz-icon"><svg viewBox="0 0 24 24"><polyline points="16 16 12 12 8 16"/><line x1="12" y1="12" x2="12" y2="21"/><path d="M20.39 18.39A5 5 0 0 0 18 9h-1.26A8 8 0 1 0 3 16.3"/></svg></div>
@@ -426,35 +436,19 @@ td[contenteditable]:focus{outline:none;background:#eff6ff}
     <button class="frm" onclick="cf()">×</button>
   </div>
   <div class="opts">
-    <div class="og">
-      <label>Langue du relevé</label>
-      <select id="ls">
-        <option value="fr">🇫🇷 Français</option>
-        <option value="en">🇬🇧 English</option>
-        <option value="es">🇪🇸 Español</option>
-        <option value="de">🇩🇪 Deutsch</option>
-        <option value="it">🇮🇹 Italiano</option>
-      </select>
+    <div class="og"><label>Langue du relevé</label>
+      <select id="ls"><option value="fr">🇫🇷 Français</option><option value="en">🇬🇧 English</option><option value="es">🇪🇸 Español</option><option value="de">🇩🇪 Deutsch</option><option value="it">🇮🇹 Italiano</option></select>
     </div>
-    <div class="og">
-      <label>Format d'export</label>
-      <select id="fmt-sel">
-        <option value="ofx">OFX (Sage / Cegid / QuickBooks)</option>
-        <option value="excel">Excel (.xlsx)</option>
-        <option value="csv">CSV (.csv)</option>
-        <option value="json">JSON (.json)</option>
-      </select>
+    <div class="og"><label>Format d'export</label>
+      <select id="fmt-sel"><option value="ofx">OFX (Sage / Cegid)</option><option value="excel">Excel (.xlsx)</option><option value="csv">CSV (.csv)</option><option value="json">JSON (.json)</option></select>
     </div>
   </div>
-  <button class="cvbtn" id="cb" onclick="cv()" disabled>
+  <button class="cvbtn" id="cb" onclick="handleConvert()" disabled>
     <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg>
     Convertir maintenant — gratuit
   </button>
   <div class="sec-row">
-    <span class="si">Chiffré AES-256</span>
-    <span class="si">Supprimé en 1h</span>
-    <span class="si">Jamais stocké</span>
-    <span class="si">Conforme RGPD</span>
+    <span class="si">Chiffré AES-256</span><span class="si">Supprimé en 1h</span><span class="si">Conforme RGPD</span>
   </div>
   <div class="pw" id="pw">
     <div class="phdr"><span id="pl">...</span><span id="pp">0%</span></div>
@@ -487,130 +481,292 @@ td[contenteditable]:focus{outline:none;background:#eff6ff}
 </div>
 </div>
 
+<!-- PAGE COMPTE -->
+<div id="account" style="display:none">
+<div class="acc-page">
+  <div class="acc-header">
+    <div>
+      <h1>Mon espace</h1>
+      <p style="font-size:.85rem;color:#777;margin-top:4px" id="acc-email"></p>
+    </div>
+    <button class="acc-logout" onclick="handleLogout()">Se déconnecter</button>
+  </div>
+
+  <!-- Upgrade banner (shown when conversions low) -->
+  <div class="upgrade-banner" id="upgrade-banner" style="display:none">
+    <div>
+      <h3>Passez au plan Pro</h3>
+      <p>Conversions illimitées, tous les formats, historique complet.</p>
+    </div>
+    <button class="upgrade-btn" onclick="stripeCheckout('price_1TYra7RqpJ66wdpMKiwUQGaP')">Passer au Pro — €49/mois</button>
+  </div>
+
+  <!-- Conversions restantes -->
+  <div class="acc-card">
+    <div class="acc-card-title">Conversions restantes</div>
+    <div class="conv-counter">
+      <div class="conv-num" id="conv-remaining">3</div>
+      <div class="conv-label">conversions disponibles<br><span style="color:#aaa;font-size:.78rem">sur 3 incluses dans le plan gratuit</span></div>
+    </div>
+    <div class="conv-bar"><div class="conv-fill" id="conv-fill" style="width:100%"></div></div>
+    <div style="margin-top:16px">
+      <button class="btn-dark" onclick="pg('up')" style="font-size:.85rem;padding:9px 20px">Nouvelle conversion →</button>
+    </div>
+  </div>
+
+  <!-- Historique -->
+  <div class="acc-card">
+    <div class="acc-card-title">Historique des conversions</div>
+    <ul class="acc-history" id="acc-history">
+      <li class="acc-empty">Aucune conversion pour le moment</li>
+    </ul>
+  </div>
+
+  <!-- Plans -->
+  <div class="acc-card">
+    <div class="acc-card-title">Votre plan</div>
+    <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px">
+      <div>
+        <div style="font-size:1rem;font-weight:600;margin-bottom:4px" id="acc-plan-name">Plan Gratuit</div>
+        <div style="font-size:.83rem;color:#777">3 conversions incluses · CSV & Excel</div>
+      </div>
+      <button class="btn-dark" onclick="sc('pricing');pg('land')" style="font-size:.83rem;padding:8px 18px">Voir les plans →</button>
+    </div>
+  </div>
+</div>
+</div>
+
+<!-- AUTH MODAL -->
+<div id="auth-modal" style="display:none">
+  <div class="modal-overlay" onclick="closeAuthModal(event)">
+    <div class="modal-box" onclick="event.stopPropagation()">
+      <div class="modal-title">Accéder à votre espace</div>
+      <div class="modal-sub">Créez un compte gratuit pour lancer votre conversion et accéder à votre historique.</div>
+      <div class="modal-tabs">
+        <button class="modal-tab active" id="tab-signup" onclick="switchTab('signup')">Créer un compte</button>
+        <button class="modal-tab" id="tab-login" onclick="switchTab('login')">Se connecter</button>
+      </div>
+      <div id="auth-error" class="modal-error"></div>
+      <input class="modal-input" type="email" id="auth-email" placeholder="votre@email.com">
+      <input class="modal-input" type="password" id="auth-password" placeholder="Mot de passe (min. 6 caractères)">
+      <button class="modal-btn" id="auth-submit-btn" onclick="handleAuth()">Créer mon compte et convertir</button>
+      <button class="modal-skip" onclick="skipAuth()">Continuer sans compte (essai limité)</button>
+    </div>
+  </div>
+</div>
+
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 <script>
 'use strict';
-let sf=null,TX=[];
 
-function pg(id){
-  document.getElementById('land').style.display=id==='land'?'block':'none';
-  document.getElementById('up').style.display=id==='up'?'block':'none';
+// SUPABASE
+const { createClient } = supabase;
+const sb = createClient(
+  'https://dbnppjaeszjrohponfyk.supabase.co',
+  'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRibnBwamFlc3pqcm9ocG9uZnlrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzk5MDI4MzIsImV4cCI6MjA5NTQ3ODgzMn0.yJVw-3RamSnkodAW37G6XWqowFWK55bTG5bs7XVpPsU'
+);
+
+let sf=null, TX=[], currentUser=null, authCallback=null;
+const MAX_FREE=3;
+
+// INIT
+async function init() {
+  const { data: { session } } = await sb.auth.getSession();
+  if (session) {
+    currentUser = session.user;
+    updateNavForUser(currentUser);
+  }
+  sb.auth.onAuthStateChange((event, session) => {
+    currentUser = session?.user || null;
+    if (currentUser) updateNavForUser(currentUser);
+    else resetNav();
+  });
+  const params = new URLSearchParams(window.location.search);
+  if (params.get('payment') === 'success') notif('✓ Paiement réussi — bienvenue !');
+}
+init();
+
+function updateNavForUser(user) {
+  const btn = document.getElementById('nav-account-btn');
+  if (btn) { btn.style.display = 'block'; btn.textContent = 'Mon compte'; }
+}
+function resetNav() {
+  const btn = document.getElementById('nav-account-btn');
+  if (btn) btn.style.display = 'none';
+}
+function handleNavAccount() {
+  if (currentUser) pg('account');
+  else showAuthModal(null);
+}
+
+// NAVIGATION
+function pg(id) {
+  ['land','up','account'].forEach(p => document.getElementById(p).style.display = 'none');
+  document.getElementById(id).style.display = 'block';
   window.scrollTo({top:0,behavior:'smooth'});
+  if (id === 'account') loadAccountData();
 }
-function sc(id){
-  const el=document.getElementById(id);
-  if(el){pg('land');setTimeout(()=>el.scrollIntoView({behavior:'smooth'}),60);}
+function sc(id) {
+  const el = document.getElementById(id);
+  if (el) { pg('land'); setTimeout(() => el.scrollIntoView({behavior:'smooth'}), 60); }
 }
 
-const io=new IntersectionObserver(entries=>{entries.forEach(e=>{if(e.isIntersecting)e.target.classList.add('visible');});},{threshold:0.08});
-document.querySelectorAll('.reveal').forEach(r=>io.observe(r));
+// SCROLL REVEAL
+const io = new IntersectionObserver(entries => {
+  entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('visible'); });
+}, {threshold:0.08});
+document.querySelectorAll('.reveal').forEach(r => io.observe(r));
 
-document.querySelectorAll('.faq-item').forEach(item=>{
-  item.querySelector('.faq-q').addEventListener('click',()=>item.classList.toggle('open'));
+// FAQ
+document.querySelectorAll('.faq-item').forEach(item => {
+  item.querySelector('.faq-q').addEventListener('click', () => item.classList.toggle('open'));
 });
 
-// FREE TRIAL
-const MAX_FREE=3;
-function getTrialCount(){return parseInt(localStorage.getItem('sc_trials')||'0');}
-function incTrialCount(){const n=getTrialCount()+1;localStorage.setItem('sc_trials',n);return n;}
-
-function showUpgradeModal(){
-  const m=document.createElement('div');
-  m.id='upgrade-modal';
-  m.style.cssText='position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:9999;display:flex;align-items:center;justify-content:center;padding:20px;animation:fadeIn .2s ease';
-  m.innerHTML=`<div style="background:#fff;border-radius:16px;padding:40px;max-width:440px;width:100%;text-align:center;box-shadow:0 24px 64px rgba(0,0,0,.15)">
-    <div style="font-size:.7rem;font-weight:600;color:#aaa;letter-spacing:.1em;text-transform:uppercase;margin-bottom:12px">Essai gratuit utilisé</div>
-    <div style="font-size:1.7rem;font-weight:600;letter-spacing:-.03em;margin-bottom:8px;line-height:1.2">Vous avez utilisé vos<br><em style="font-weight:300;color:#666">3 conversions gratuites.</em></div>
-    <p style="font-size:.875rem;color:#777;margin-bottom:28px;line-height:1.65">Passez à un plan payant pour continuer à convertir vos relevés bancaires.</p>
-    <div style="display:flex;flex-direction:column;gap:8px;margin-bottom:16px">
-      <button onclick="stripeCheckout('price_1TYra7RqpJ66wdpMKiwUQGaP')" style="background:#111;color:#fff;border:none;border-radius:8px;padding:12px;font-size:.875rem;font-weight:500;cursor:pointer;font-family:inherit">Pro — €49/mois <span style="opacity:.6;font-size:.78rem">Illimité</span></button>
-      <button onclick="stripeCheckout('price_1TeFDrRqpJ66wdpMZJVcgyJS')" style="background:#111;color:#fff;border:none;border-radius:8px;padding:12px;font-size:.875rem;font-weight:500;cursor:pointer;font-family:inherit">Cabinet — €199/mois <span style="opacity:.6;font-size:.78rem">Équipe illimitée</span></button>
-    </div>
-    <button onclick="document.getElementById('upgrade-modal').remove()" style="background:none;border:none;color:#aaa;font-size:.78rem;cursor:pointer;font-family:inherit">Plus tard</button>
-  </div>`;
-  document.body.appendChild(m);
+// AUTH MODAL
+function showAuthModal(callback) {
+  authCallback = callback;
+  document.getElementById('auth-modal').style.display = 'block';
+  document.getElementById('auth-error').style.display = 'none';
+  document.getElementById('auth-email').value = '';
+  document.getElementById('auth-password').value = '';
+}
+function closeAuthModal(e) {
+  if (!e || e.target.classList.contains('modal-overlay')) {
+    document.getElementById('auth-modal').style.display = 'none';
+  }
+}
+function switchTab(tab) {
+  document.getElementById('tab-signup').classList.toggle('active', tab === 'signup');
+  document.getElementById('tab-login').classList.toggle('active', tab === 'login');
+  document.getElementById('auth-submit-btn').textContent = tab === 'signup' ? 'Créer mon compte et convertir' : 'Se connecter et convertir';
+}
+function getCurrentTab() {
+  return document.getElementById('tab-signup').classList.contains('active') ? 'signup' : 'login';
+}
+async function handleAuth() {
+  const email = document.getElementById('auth-email').value.trim();
+  const password = document.getElementById('auth-password').value;
+  const errEl = document.getElementById('auth-error');
+  const btn = document.getElementById('auth-submit-btn');
+  if (!email || !password) { errEl.textContent = 'Veuillez remplir tous les champs.'; errEl.style.display = 'block'; return; }
+  btn.disabled = true;
+  btn.textContent = 'Chargement...';
+  errEl.style.display = 'none';
+  const tab = getCurrentTab();
+  let result;
+  if (tab === 'signup') {
+    result = await sb.auth.signUp({ email, password });
+  } else {
+    result = await sb.auth.signInWithPassword({ email, password });
+  }
+  if (result.error) {
+    errEl.textContent = result.error.message;
+    errEl.style.display = 'block';
+    btn.disabled = false;
+    btn.textContent = tab === 'signup' ? 'Créer mon compte et convertir' : 'Se connecter et convertir';
+    return;
+  }
+  currentUser = result.data.user;
+  updateNavForUser(currentUser);
+  closeAuthModal();
+  if (authCallback) { authCallback(); authCallback = null; }
+}
+function skipAuth() {
+  closeAuthModal();
+  if (authCallback) { authCallback(); authCallback = null; }
+}
+async function handleLogout() {
+  await sb.auth.signOut();
+  currentUser = null;
+  resetNav();
+  pg('land');
+  notif('✓ Déconnecté');
 }
 
-// EMAIL CAPTURE
-function showEmailCapture(){
-  if(localStorage.getItem('sc_email_captured'))return;
-  const m=document.createElement('div');
-  m.id='email-modal';
-  m.style.cssText='position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:9999;display:flex;align-items:center;justify-content:center;padding:20px;animation:fadeIn .2s ease';
-  m.innerHTML=`<div style="background:#fff;border-radius:16px;padding:40px;max-width:420px;width:100%;text-align:center;box-shadow:0 24px 64px rgba(0,0,0,.15)">
-    <div style="font-size:.7rem;font-weight:600;color:#aaa;letter-spacing:.1em;text-transform:uppercase;margin-bottom:12px">Votre conversion est prête ✓</div>
-    <div style="font-size:1.5rem;font-weight:600;letter-spacing:-.03em;margin-bottom:8px;line-height:1.3">Sauvegardez vos résultats<br><em style="font-weight:300;color:#666">et accédez à l'historique</em></div>
-    <p style="font-size:.875rem;color:#777;margin-bottom:24px;line-height:1.65">Entrez votre email pour recevoir un lien de récupération et rester informé des nouveautés.</p>
-    <input id="capture-email" type="email" placeholder="votre@email.com" style="width:100%;padding:11px 14px;border:1px solid #e0e0e0;border-radius:8px;font-size:.875rem;font-family:inherit;outline:none;margin-bottom:10px;transition:border-color .15s" onfocus="this.style.borderColor='#111'" onblur="this.style.borderColor='#e0e0e0'">
-    <button onclick="submitEmail()" style="width:100%;background:#111;color:#fff;border:none;border-radius:8px;padding:12px;font-size:.875rem;font-weight:500;cursor:pointer;font-family:inherit;margin-bottom:10px">Continuer →</button>
-    <button onclick="skipEmail()" style="background:none;border:none;color:#aaa;font-size:.78rem;cursor:pointer;font-family:inherit">Ignorer et télécharger quand même</button>
-  </div>`;
-  document.body.appendChild(m);
-  setTimeout(()=>document.getElementById('capture-email')?.focus(),300);
+// ACCOUNT PAGE
+async function loadAccountData() {
+  if (!currentUser) { pg('land'); return; }
+  document.getElementById('acc-email').textContent = currentUser.email;
+  
+  // Conversions count
+  const { data: convs } = await sb.from('conversions').select('*').eq('user_id', currentUser.id).order('created_at', {ascending: false});
+  const used = convs ? convs.length : 0;
+  const remaining = Math.max(0, MAX_FREE - used);
+  document.getElementById('conv-remaining').textContent = remaining;
+  const fill = document.getElementById('conv-fill');
+  const pct = (remaining / MAX_FREE) * 100;
+  fill.style.width = pct + '%';
+  if (remaining === 0) fill.classList.add('low');
+  if (remaining <= 1) document.getElementById('upgrade-banner').style.display = 'flex';
+
+  // History
+  const histEl = document.getElementById('acc-history');
+  if (convs && convs.length > 0) {
+    histEl.innerHTML = convs.slice(0, 10).map(c => `
+      <li>
+        <div><div class="h-name">${c.filename || 'Relevé'}</div><div class="h-date">${new Date(c.created_at).toLocaleDateString('fr-FR')}</div></div>
+        <span class="h-count">${c.transactions_count || 0} transactions</span>
+      </li>`).join('');
+  } else {
+    histEl.innerHTML = '<li class="acc-empty">Aucune conversion pour le moment</li>';
+  }
 }
 
-async function submitEmail(){
-  const email=document.getElementById('capture-email')?.value?.trim();
-  if(!email||!email.includes('@')){document.getElementById('capture-email').style.borderColor='#dc2626';return;}
-  localStorage.setItem('sc_email_captured',email);
-  document.getElementById('email-modal')?.remove();
-  notif('✓ Email enregistré — bonne conversion !');
-  try{
-    await fetch('https://api.brevo.com/v3/contacts',{
-      method:'POST',
-      headers:{'Content-Type':'application/json','api-key':'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'},
-      body:JSON.stringify({email:email,listIds:[2],updateEnabled:true,attributes:{SOURCE:'StatementConvert',DATE_INSCRIPTION:new Date().toISOString()}})
-    });
-  }catch(e){console.log('Brevo error:',e);}
+// CONVERT FLOW
+function handleConvert() {
+  const trialCount = parseInt(localStorage.getItem('sc_trials') || '0');
+  if (!currentUser && trialCount >= MAX_FREE) {
+    showAuthModal(() => cv());
+    return;
+  }
+  if (!currentUser) {
+    showAuthModal(() => cv());
+    return;
+  }
+  cv();
 }
 
-function skipEmail(){
-  localStorage.setItem('sc_email_captured','skipped');
-  document.getElementById('email-modal')?.remove();
-}
-
-// DRAG & DROP
-const dz=document.getElementById('dz');
-if(dz){
-  dz.addEventListener('dragover',e=>{e.preventDefault();dz.classList.add('ov');});
-  dz.addEventListener('dragleave',()=>dz.classList.remove('ov'));
-  dz.addEventListener('drop',e=>{
-    e.preventDefault();dz.classList.remove('ov');
-    const f=e.dataTransfer.files[0];
-    if(f){const dt=new DataTransfer();dt.items.add(f);document.getElementById('fi').files=dt.files;onF(document.getElementById('fi'));}
+// FILE HANDLING
+const dz = document.getElementById('dz');
+if (dz) {
+  dz.addEventListener('dragover', e => { e.preventDefault(); dz.classList.add('ov'); });
+  dz.addEventListener('dragleave', () => dz.classList.remove('ov'));
+  dz.addEventListener('drop', e => {
+    e.preventDefault(); dz.classList.remove('ov');
+    const f = e.dataTransfer.files[0];
+    if (f) { const dt = new DataTransfer(); dt.items.add(f); document.getElementById('fi').files = dt.files; onF(document.getElementById('fi')); }
   });
 }
-
-const ALLOWED=['.pdf','.csv','.xlsx','.xls','.jpg','.jpeg','.png'];
-function onF(inp){
-  const f=inp.files[0];if(!f)return;
-  const ext='.'+f.name.split('.').pop().toLowerCase();
-  if(!ALLOWED.includes(ext)){notif('Format non supporté. Utilisez PDF, CSV, Excel, JPG ou PNG.',true);return;}
-  if(f.size>10*1024*1024){notif('Fichier trop lourd (max 10 MB).',true);return;}
-  sf=f;
-  document.getElementById('fn').textContent=f.name;
-  document.getElementById('fs').textContent=(f.size/1024/1024).toFixed(2)+' MB';
+const ALLOWED = ['.pdf','.csv','.xlsx','.xls','.jpg','.jpeg','.png'];
+function onF(inp) {
+  const f = inp.files[0]; if (!f) return;
+  const ext = '.'+f.name.split('.').pop().toLowerCase();
+  if (!ALLOWED.includes(ext)) { notif('Format non supporté.',true); return; }
+  if (f.size > 10*1024*1024) { notif('Fichier trop lourd (max 10 MB).',true); return; }
+  sf = f;
+  document.getElementById('fn').textContent = f.name;
+  document.getElementById('fs').textContent = (f.size/1024/1024).toFixed(2)+' MB';
   document.getElementById('frow').classList.add('show');
-  document.getElementById('cb').disabled=false;
+  document.getElementById('cb').disabled = false;
 }
-function cf(){
-  sf=null;document.getElementById('fi').value='';
+function cf() {
+  sf=null; document.getElementById('fi').value='';
   document.getElementById('frow').classList.remove('show');
-  document.getElementById('cb').disabled=true;
-  document.getElementById('rsp').classList.remove('show');TX=[];
+  document.getElementById('cb').disabled = true;
+  document.getElementById('rsp').classList.remove('show'); TX=[];
 }
 
-const MIME={pdf:'application/pdf',csv:'text/csv',xls:'application/vnd.ms-excel',xlsx:'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',jpg:'image/jpeg',jpeg:'image/jpeg',png:'image/png'};
+const MIME = {pdf:'application/pdf',csv:'text/csv',xls:'application/vnd.ms-excel',xlsx:'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',jpg:'image/jpeg',jpeg:'image/jpeg',png:'image/png'};
 
-let _pt=null,_pv=0;
-function startProgress(){
+let _pt=null, _pv=0;
+function startProgress() {
   const phases=[{l:'Upload sécurisé…',e:20,s:'s1'},{l:'Lecture du relevé…',e:60,s:'s2'},{l:'Structuration…',e:88,s:'s3'},{l:'Génération aperçu…',e:96,s:'s4'}];
   document.getElementById('pw').classList.add('show');
   document.getElementById('rsp').classList.remove('show');
-  ['s1','s2','s3','s4'].forEach(id=>document.getElementById(id).className='ps');
-  _pv=0;let ph=0;
+  ['s1','s2','s3','s4'].forEach(id => document.getElementById(id).className='ps');
+  _pv=0; let ph=0;
   _pt=setInterval(()=>{
-    const c=phases[ph];const spd=ph<1?3:ph<2?1.2:.6;
+    const c=phases[ph]; const spd=ph<1?3:ph<2?1.2:.6;
     _pv=Math.min(_pv+spd,c.e);
     document.getElementById('pb').style.width=_pv+'%';
     document.getElementById('pp').textContent=Math.round(_pv)+'%';
@@ -619,46 +775,60 @@ function startProgress(){
     if(_pv>=c.e&&ph<phases.length-1){document.getElementById(c.s).className='ps dn';ph++;}
   },70);
 }
-function finishProgress(ok){
+function finishProgress(ok) {
   clearInterval(_pt);
   const bar=document.getElementById('pb');
-  bar.style.transition='width .3s ease';bar.style.width='100%';
+  bar.style.transition='width .3s ease'; bar.style.width='100%';
   ['s1','s2','s3','s4'].forEach(id=>document.getElementById(id).className=ok?'ps dn':'ps');
   setTimeout(()=>{document.getElementById('pw').classList.remove('show');bar.style.width='0';bar.style.transition='';},ok?500:300);
 }
 
-async function cv(){
-  if(!sf)return;
-  const btn=document.getElementById('cb');btn.disabled=true;
+async function cv() {
+  if (!sf) return;
+  const btn = document.getElementById('cb'); btn.disabled=true;
   startProgress();
-  try{
-    const b64=await fileToBase64(sf);
-    const ext=sf.name.split('.').pop().toLowerCase();
-    const mime=MIME[ext]||'application/octet-stream';
-    const resp=await fetch('https://statementconvert-backend.onrender.com/convert',{
+  try {
+    const b64 = await fileToBase64(sf);
+    const ext = sf.name.split('.').pop().toLowerCase();
+    const mime = MIME[ext] || 'application/octet-stream';
+    const resp = await fetch('https://statementconvert-backend.onrender.com/convert',{
       method:'POST',headers:{'Content-Type':'application/json'},
       body:JSON.stringify({file:b64,mimeType:mime,filename:sf.name})
     });
-    const data=await resp.json();
-    if(!resp.ok||!data.ok)throw{code:data.error,message:data.message};
-    TX=data.transactions;
+    const data = await resp.json();
+    if (!resp.ok || !data.ok) throw {message: data.message};
+    TX = data.transactions;
     finishProgress(true);
+    
+    // Save to Supabase if logged in
+    if (currentUser) {
+      await sb.from('conversions').insert({
+        user_id: currentUser.id,
+        filename: sf.name,
+        transactions_count: TX.length
+      });
+    } else {
+      const n = parseInt(localStorage.getItem('sc_trials')||'0') + 1;
+      localStorage.setItem('sc_trials', n);
+    }
+
     setTimeout(()=>{
       bldTbl();
       document.getElementById('txn-count').textContent='✓ '+TX.length+' transactions';
       document.getElementById('rsp').classList.add('show');
       btn.disabled=false;
-      showEmailCapture();
-      const n=incTrialCount();
-      if(n>=MAX_FREE)setTimeout(()=>showUpgradeModal(),1500);
+      // Show account prompt after conversion
+      if (currentUser) {
+        notif('✓ Conversion sauvegardée dans votre compte !');
+      }
     },300);
-  }catch(err){
-    finishProgress(false);btn.disabled=false;
-    notif(err.message||'Erreur inattendue. Réessayez ou contactez le support.',true);
+  } catch(err) {
+    finishProgress(false); btn.disabled=false;
+    notif(err.message||'Erreur inattendue. Réessayez.',true);
   }
 }
 
-function fileToBase64(file){
+function fileToBase64(file) {
   return new Promise((res,rej)=>{
     const r=new FileReader();
     r.onload=()=>res(r.result.split(',')[1]);
@@ -667,10 +837,10 @@ function fileToBase64(file){
   });
 }
 
-function bldTbl(){
-  const tb=document.getElementById('tb');tb.innerHTML='';
+function bldTbl() {
+  const tb=document.getElementById('tb'); tb.innerHTML='';
   TX.forEach((t,i)=>{
-    const amt=parseFloat(t.amount??t.amt)||0;const bal=t.balance??t.bal??null;const pos=amt>=0;
+    const amt=parseFloat(t.amount??t.amt)||0; const bal=t.balance??t.bal??null; const pos=amt>=0;
     const tr=document.createElement('tr');
     tr.innerHTML=`<td style="color:#bbb;font-size:.72rem">${i+1}</td>
       <td contenteditable="true">${esc(t.date||'')}</td>
@@ -689,46 +859,12 @@ function getRows(){
   });
 }
 
-function dlCSV(){
-  const rows=getRows();
-  const hdr='Date;Description;Montant;Solde;Catégorie\n';
-  const body=rows.map(r=>`${r.date};"${(r.desc||'').replace(/"/g,'""')}";${r.amount};${r.balance};${r.cat}`).join('\n');
-  dl('\uFEFF'+hdr+body,'releve.csv','text/csv;charset=utf-8');notif('✓ CSV téléchargé');
-}
-function dlExcel(){
-  if(typeof XLSX!=='undefined'){
-    const rows=getRows();
-    const ws=XLSX.utils.aoa_to_sheet([['Date','Description','Montant','Solde','Catégorie'],...rows.map(r=>[r.date,r.desc,r.amount,r.balance,r.cat])]);
-    ws['!cols']=[{wch:12},{wch:40},{wch:12},{wch:14},{wch:16}];
-    const wb=XLSX.utils.book_new();XLSX.utils.book_append_sheet(wb,ws,'Transactions');
-    XLSX.writeFile(wb,'releve.xlsx');notif('✓ Excel téléchargé');
-  }
-}
-function dlJSON(){
-  const data={exported_at:new Date().toISOString(),source:'StatementConvert',transactions:getRows().map(r=>({date:r.date,description:r.desc,amount:r.amount,balance:r.balance,category:r.cat}))};
-  dl(JSON.stringify(data,null,2),'releve.json','application/json');notif('✓ JSON téléchargé');
-}
-function dlOFX(){
-  const rows=getRows();const now=new Date().toISOString().replace(/[-:T.]/g,'').slice(0,14);
-  const stmts=rows.map((r,i)=>`<STMTTRN><TRNTYPE>${r.amount.startsWith('+')?'CREDIT':'DEBIT'}<DTPOSTED>${now}<TRNAMT>${r.amount.replace(/[^0-9.\-]/g,'')}<FITID>${i+1}<MEMO>${r.desc}</STMTTRN>`).join('\n');
-  dl(`OFXHEADER:100\nDATA:OFXSGML\nVERSION:102\n\n<OFX><BANKMSGSRSV1><STMTTRNRS><STMTRS><CURDEF>EUR<BANKTRANLIST>\n${stmts}\n</BANKTRANLIST></STMTRS></STMTTRNRS></BANKMSGSRSV1></OFX>`,'releve.ofx','application/x-ofx');
-  notif('✓ OFX téléchargé');
-}
-function dl(content,filename,mime){
-  const blob=new Blob([content],{type:mime});const url=URL.createObjectURL(blob);
-  const a=document.createElement('a');a.href=url;a.download=filename;
-  document.body.appendChild(a);a.click();document.body.removeChild(a);
-  setTimeout(()=>URL.revokeObjectURL(url),1000);
-}
-function notif(msg,err=false){
-  document.querySelectorAll('.notif').forEach(n=>n.remove());
-  const n=document.createElement('div');n.className='notif '+(err?'notif-err':'notif-ok');n.textContent=msg;
-  document.body.appendChild(n);n.addEventListener('click',()=>n.remove());
-  setTimeout(()=>n.remove(),err?6000:3000);
-}
-
-const params=new URLSearchParams(window.location.search);
-if(params.get('payment')==='success')notif('✓ Paiement réussi — bienvenue !');
+function dlCSV(){const rows=getRows();const hdr='Date;Description;Montant;Solde;Catégorie\n';const body=rows.map(r=>`${r.date};"${(r.desc||'').replace(/"/g,'""')}";${r.amount};${r.balance};${r.cat}`).join('\n');dl('\uFEFF'+hdr+body,'releve.csv','text/csv;charset=utf-8');notif('✓ CSV téléchargé');}
+function dlExcel(){if(typeof XLSX!=='undefined'){const rows=getRows();const ws=XLSX.utils.aoa_to_sheet([['Date','Description','Montant','Solde','Catégorie'],...rows.map(r=>[r.date,r.desc,r.amount,r.balance,r.cat])]);ws['!cols']=[{wch:12},{wch:40},{wch:12},{wch:14},{wch:16}];const wb=XLSX.utils.book_new();XLSX.utils.book_append_sheet(wb,ws,'Transactions');XLSX.writeFile(wb,'releve.xlsx');notif('✓ Excel téléchargé');}}
+function dlJSON(){const data={exported_at:new Date().toISOString(),source:'StatementConvert',transactions:getRows().map(r=>({date:r.date,description:r.desc,amount:r.amount,balance:r.balance,category:r.cat}))};dl(JSON.stringify(data,null,2),'releve.json','application/json');notif('✓ JSON téléchargé');}
+function dlOFX(){const rows=getRows();const now=new Date().toISOString().replace(/[-:T.]/g,'').slice(0,14);const stmts=rows.map((r,i)=>`<STMTTRN><TRNTYPE>${r.amount.startsWith('+')?'CREDIT':'DEBIT'}<DTPOSTED>${now}<TRNAMT>${r.amount.replace(/[^0-9.\-]/g,'')}<FITID>${i+1}<MEMO>${r.desc}</STMTTRN>`).join('\n');dl(`OFXHEADER:100\nDATA:OFXSGML\nVERSION:102\n\n<OFX><BANKMSGSRSV1><STMTTRNRS><STMTRS><CURDEF>EUR<BANKTRANLIST>\n${stmts}\n</BANKTRANLIST></STMTRS></STMTTRNRS></BANKMSGSRSV1></OFX>`,'releve.ofx','application/x-ofx');notif('✓ OFX téléchargé');}
+function dl(content,filename,mime){const blob=new Blob([content],{type:mime});const url=URL.createObjectURL(blob);const a=document.createElement('a');a.href=url;a.download=filename;document.body.appendChild(a);a.click();document.body.removeChild(a);setTimeout(()=>URL.revokeObjectURL(url),1000);}
+function notif(msg,err=false){document.querySelectorAll('.notif').forEach(n=>n.remove());const n=document.createElement('div');n.className='notif '+(err?'notif-err':'notif-ok');n.textContent=msg;document.body.appendChild(n);n.addEventListener('click',()=>n.remove());setTimeout(()=>n.remove(),err?6000:3000);}
 </script>
 
 <script src="https://js.stripe.com/v3/" defer></script>
@@ -751,4 +887,3 @@ window.addEventListener('load',()=>{
 </script>
 </body>
 </html>
-
