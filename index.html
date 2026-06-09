@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="fr">
+<html lang="fr"> 
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -551,17 +551,24 @@ function showEmailCapture(){
 
 async function submitEmail(){
   const email=document.getElementById('capture-email')?.value?.trim();
-  if(!email||!email.includes('@')){document.getElementById('capture-email').style.borderColor='#dc2626';return;}
+  if(!email||!email.includes('@')){
+    document.getElementById('capture-email').style.borderColor='#dc2626';
+    return;
+  }
+
   localStorage.setItem('sc_email_captured',email);
   document.getElementById('email-modal')?.remove();
   notif('✓ Email enregistré — bonne conversion !');
+
   try{
-    await fetch('https://api.brevo.com/v3/contacts',{
+    await fetch('https://statementconvert-backend.onrender.com/lead', {
       method:'POST',
-      headers:{'Content-Type':'application/json','api-key':'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'},
-      body:JSON.stringify({email:email,listIds:[2],updateEnabled:true,attributes:{SOURCE:'StatementConvert',DATE_INSCRIPTION:new Date().toISOString()}})
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({email})
     });
-  }catch(e){console.log('Brevo error:',e);}
+  }catch(e){
+    console.log('Lead error:',e);
+  }
 }
 
 function skipEmail(){
