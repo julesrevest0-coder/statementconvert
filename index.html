@@ -561,7 +561,7 @@ async function submitEmail(){
   notif('✓ Email enregistré — bonne conversion !');
 
   try{
-    await fetch('https://statementconvert-backend.onrender.com/lead', {
+    await fetch('/api/lead', {
       method:'POST',
       headers:{'Content-Type':'application/json'},
       body:JSON.stringify({email})
